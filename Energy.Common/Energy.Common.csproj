@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DAL\SQLiteHelper.cs" />
+    <Compile Include="Entity\EnergyData.cs" />
     <Compile Include="Entity\MessageInfo.cs" />
     <Compile Include="Entity\Meter.cs" />
     <Compile Include="Entity\MeterList.cs" />

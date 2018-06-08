@@ -1,8 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using TCPServer;
-using TCPServer.Entity;
-using TCPServer.Utils;
+using Energy.Common.Entity;
+using Energy.Common.Utils;
 
 namespace TCPServerTest
 {

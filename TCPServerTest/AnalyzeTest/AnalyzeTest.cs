@@ -21,6 +21,8 @@ namespace TCPServerTest.AnalyzeTest
 
             source = JsonConvert.DeserializeObject<MeterList>(data.JsonData);
 
+            
+
             Console.WriteLine(data.JsonData);
         }
     }
