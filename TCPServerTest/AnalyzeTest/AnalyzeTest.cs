@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
-using TCPServer.Entity;
+using Energy.Common.Entity;
+using Energy.Common.DAL;
 
 namespace TCPServerTest.AnalyzeTest
 {
@@ -14,9 +15,9 @@ namespace TCPServerTest.AnalyzeTest
         {
             MeterList source;
 
-            List<SourceDataHeader> headerList = TCPServer.DAL.SQLiteHelper.GetUnStoreList();
+            List<SourceDataHeader> headerList = Energy.Common.DAL.SQLiteHelper.GetUnStoreList();
 
-            SourceData data = TCPServer.DAL.SQLiteHelper.GetSourceByHeader(headerList[0]);
+            SourceData data = Energy.Common.DAL.SQLiteHelper.GetSourceByHeader(headerList[0]);
 
             source = JsonConvert.DeserializeObject<MeterList>(data.JsonData);
 
