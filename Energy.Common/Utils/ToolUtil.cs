@@ -8,6 +8,11 @@ namespace Energy.Common.Utils
 {
     public class ToolUtil
     {
+        /// <summary>
+        /// 将yyyyMMddHHmmss类型字符串时间转换成DateTime
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns></returns>
         public static DateTime GetDateTimeFromString(string time)
         {
             DateTime dt = DateTime.ParseExact(time,"yyyyMMddHHmmss",System.Globalization.CultureInfo.CurrentCulture);
