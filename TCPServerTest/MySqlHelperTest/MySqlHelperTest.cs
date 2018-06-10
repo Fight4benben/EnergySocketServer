@@ -1,17 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
 using Energy.Common.Entity;
-using Energy.Common.DAL;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MySql.Data.MySqlClient;
+using Newtonsoft.Json;
 
-namespace TCPServerTest.AnalyzeTest
+namespace TCPServerTest.MySqlHelperTest
 {
     [TestClass]
-    public class AnalyzeTest
+    public class MySqlHelperTest
     {
         [TestMethod]
-        public void TestJsonConvert()
+        public void TestConnectToMySql()
+        {
+            string connectString = "Server=127.0.0.1;Port=3306;Database=test;Uid=root;Pwd=Fight4benben";
+            using (MySqlConnection connection = new MySqlConnection(connectString))
+            {
+                connection.Open();
+
+                Console.WriteLine("Open energydb Success!");
+            }
+        }
+
+        [TestMethod]
+        public void TestTransaction()
         {
             MeterList source;
 
@@ -31,7 +43,8 @@ namespace TCPServerTest.AnalyzeTest
                 if (param == null)
                     continue;
 
-                origDataList.Add(new OriginEnergyData() {
+                origDataList.Add(new OriginEnergyData()
+                {
                     BuildID = source.BuildId,
                     MeterCode = item.MeterId,
                     Time = source.CollectTime,
@@ -39,8 +52,8 @@ namespace TCPServerTest.AnalyzeTest
                     Calced = false
                 });
             }
-
-            Console.WriteLine(data.JsonData);
+            string connectString = "Server=127.0.0.1;Port=3306;Database={0};Uid=root;Pwd=Fight4benben";
+            Energy.Common.DAL.MySQLHelper.ExecuteTransactionScope(connectString,origDataList);
         }
     }
 }

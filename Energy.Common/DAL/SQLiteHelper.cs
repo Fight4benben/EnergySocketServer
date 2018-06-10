@@ -31,7 +31,7 @@ namespace Energy.Common.DAL
         /// <param name="dbName">数据库名</param>
         /// <param name="tableName">表名</param>
         /// <param name="createSQL">创建SQL语句</param>
-        private static void CreateTableInDB(string dbName,string tableName,string createSQL)
+        public static void CreateTableInDB(string dbName,string tableName,string createSQL)
         {
             //如果不包含dbName则，推出该方法
             if (!File.Exists(dbName))
@@ -177,9 +177,24 @@ namespace Energy.Common.DAL
             return headerList;
         }
 
-        
+        /// <summary>
+        /// 如果解析数据并且插入成功，则将Status标记为1,作为事务使用
+        /// </summary>
+        /// <returns></returns>
+        public static SQLiteCommand SetStatusTrue(SourceDataHeader header)
+        {
+            string sql = string.Format(@"update GatewayData set Status=1 where BuildID='{0}' and GatewayID = '{1}' 
+                            and CollectTime='{2}' and DatagramType='{3}';",header.BuildID,header.GatewayID,
+                            header.CollectTime,header.DatagramType);
 
-        private static int ExecuteNonQuery(string dbName,string sql)
+            SQLiteConnection connection = new SQLiteConnection("Data Source=TempData;Version=3;");
+
+            SQLiteCommand command = new SQLiteCommand(sql,connection);
+
+            return command;
+        }
+
+        public static int ExecuteNonQuery(string dbName,string sql)
         {
             int result = 0;
             using (SQLiteConnection connection = new SQLiteConnection(string.Format("Data Source={0};Version=3;",dbName)))
@@ -208,6 +223,29 @@ namespace Energy.Common.DAL
                 throw;
             }
           
+        }
+
+        /// <summary>
+        /// 返回查询结果：第一行第一列
+        /// </summary>
+        /// <param name="dbName">数据库名称</param>
+        /// <param name="tableName">表名称</param>
+        /// <param name="sql">查询sql语句</param>
+        /// <returns></returns>
+        public static object ExecuteScalar(string dbName, string tableName, string sql,params SQLiteParameter[] parameters)
+        {
+            string sql1 = string.Format(sql, tableName);
+
+            using (SQLiteConnection connection = new SQLiteConnection(string.Format("Data Source={0};Version=3;", dbName)))
+            {
+                connection.Open();
+                SQLiteCommand command = new SQLiteCommand(sql1, connection);
+
+                if (parameters.Length > 0)
+                    command.Parameters.AddRange(parameters);
+
+                return command.ExecuteScalar();
+            }
         }
 
         private static bool IsTableExists(SQLiteConnection connection,string tableName)
