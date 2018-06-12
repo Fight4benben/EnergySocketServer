@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Energy.Common.Entity;
+using EnergyAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
@@ -33,27 +34,13 @@ namespace TCPServerTest.MySqlHelperTest
 
             source = JsonConvert.DeserializeObject<MeterList>(data.JsonData);
 
-            List<OriginEnergyData> origDataList = new List<OriginEnergyData>();
-
-            foreach (var item in source.Meters)
-            {
-                MeterParam param = item.MeterParams.Find(meterParam => meterParam.ParamName.ToLower() == "EPI".ToLower() || meterParam.ParamName == "LJLL".ToLower()
-                                                || meterParam.ParamName.ToLower() == "LLHeat".ToLower());
-
-                if (param == null)
-                    continue;
-
-                origDataList.Add(new OriginEnergyData()
-                {
-                    BuildID = source.BuildId,
-                    MeterCode = item.MeterId,
-                    Time = source.CollectTime,
-                    Value = param.ParamValue,
-                    Calced = false
-                });
-            }
+            List<OriginEnergyData> energyDatas = SaveDataFromSqliteToMySql.GetEnergyData(source);
+            List<VoltageData> voltageDatas= SaveDataFromSqliteToMySql.GetVoltageData(source);
+            List<CurrentData> currentDatas = SaveDataFromSqliteToMySql.GetCurrentData(source);
+            
             string connectString = "Server=127.0.0.1;Port=3306;Database={0};Uid=root;Pwd=Fight4benben";
-            Energy.Common.DAL.MySQLHelper.ExecuteTransactionScope(connectString,origDataList);
+
+            Energy.Common.DAL.MySQLHelper.ExecuteTransactionScope(connectString, energyDatas, voltageDatas, currentDatas);
         }
     }
 }

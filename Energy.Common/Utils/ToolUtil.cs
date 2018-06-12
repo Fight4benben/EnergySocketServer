@@ -44,5 +44,21 @@ namespace Energy.Common.Utils
 
             return SendData;
         }
+
+        /// <summary>
+        /// 判断可空浮点型数据是否为空或null
+        /// </summary>
+        /// <param name="paramValue"></param>
+        /// <returns></returns>
+        public static string JudgeParamValue(float? paramValue)
+        {
+            if (paramValue == null)
+                return "NULL";
+
+            if (string.IsNullOrEmpty(paramValue.ToString()))
+                return "NULL";
+
+            return paramValue.ToString();
+        }
     }
 }

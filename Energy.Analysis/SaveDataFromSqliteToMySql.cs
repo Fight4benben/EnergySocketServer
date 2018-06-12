@@ -14,7 +14,7 @@ namespace EnergyAnalysis
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        private static List<OriginEnergyData> GetEnergyData(MeterList data)
+        public static List<OriginEnergyData> GetEnergyData(MeterList data)
         {
             List<OriginEnergyData> energyDataList = new List<OriginEnergyData>();
             foreach (var item in data.Meters)
@@ -43,7 +43,7 @@ namespace EnergyAnalysis
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        private static List<VoltageData> GetVoltageData(MeterList data)
+        public static List<VoltageData> GetVoltageData(MeterList data)
         {
             List<VoltageData> voltageDataList = new List<VoltageData>();
 
@@ -69,19 +69,19 @@ namespace EnergyAnalysis
                     voltage.Ua = ua.ParamValue;
 
                 if (ub != null)
-                    voltage.Ua = ub.ParamValue;
+                    voltage.Ub = ub.ParamValue;
 
                 if (uc != null)
-                    voltage.Ua = uc.ParamValue;
+                    voltage.Uc = uc.ParamValue;
 
                 if (uab != null)
-                    voltage.Ua = uab.ParamValue;
+                    voltage.Uab = uab.ParamValue;
 
                 if (ubc != null)
-                    voltage.Ua = ubc.ParamValue;
+                    voltage.Ubc = ubc.ParamValue;
 
                 if (uca != null)
-                    voltage.Ua = uca.ParamValue;
+                    voltage.Uca = uca.ParamValue;
 
                 voltageDataList.Add(voltage);
             }
@@ -94,7 +94,7 @@ namespace EnergyAnalysis
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        private static List<CurrentData> GetCurrentData(MeterList data)
+        public static List<CurrentData> GetCurrentData(MeterList data)
         {
             List<CurrentData> currentDataList = new List<CurrentData>();
 

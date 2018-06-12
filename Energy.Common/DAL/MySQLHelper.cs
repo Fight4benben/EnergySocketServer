@@ -91,6 +91,7 @@ namespace Energy.Common.DAL
         private static string GenerateSQLByList(string typeName,object item)
         {
             StringBuilder builder = new StringBuilder();
+            //List<Energy.Common.Entity.HistoryBaseData> list;
             switch (typeName)
             {
                 case "Energy.Common.Entity.OriginEnergyData":
@@ -113,9 +114,52 @@ namespace Energy.Common.DAL
                     }
                     break;
                 case "Energy.Common.Entity.VoltageData":
-                    
+                    List<Energy.Common.Entity.VoltageData> listVolatage = (List<Energy.Common.Entity.VoltageData>)item;
+                    if (listVolatage.Count > 0)
+                    {
+                        builder.Append("insert into t_data_voltagevalue ");
+                        for (int i = 0; i < listVolatage.Count; i++)
+                        {
+                            Entity.VoltageData voltageData = listVolatage[i];
+                            if (i == 0)
+                                builder.Append(string.Format(" values('{0}','{1}','{2}',{3},{4},{5},{6},{7},{8},{9})",
+                                    voltageData.BuildID, voltageData.MeterCode, voltageData.Time.ToString("yyyy-MM-dd HH:mm:ss"),
+                                    Utils.ToolUtil.JudgeParamValue(voltageData.U), Utils.ToolUtil.JudgeParamValue(voltageData.Ua),
+                                    Utils.ToolUtil.JudgeParamValue(voltageData.Ub), Utils.ToolUtil.JudgeParamValue(voltageData.Uc),
+                                    Utils.ToolUtil.JudgeParamValue(voltageData.Uab), Utils.ToolUtil.JudgeParamValue(voltageData.Ubc),
+                                    Utils.ToolUtil.JudgeParamValue(voltageData.Uca)));
+                            else
+                                builder.Append(string.Format(" ,('{0}','{1}','{2}',{3},{4},{5},{6},{7},{8},{9})",
+                                    voltageData.BuildID, voltageData.MeterCode, voltageData.Time.ToString("yyyy-MM-dd HH:mm:ss"),
+                                    Utils.ToolUtil.JudgeParamValue(voltageData.U), Utils.ToolUtil.JudgeParamValue(voltageData.Ua),
+                                    Utils.ToolUtil.JudgeParamValue(voltageData.Ub), Utils.ToolUtil.JudgeParamValue(voltageData.Uc),
+                                    Utils.ToolUtil.JudgeParamValue(voltageData.Uab), Utils.ToolUtil.JudgeParamValue(voltageData.Ubc),
+                                    Utils.ToolUtil.JudgeParamValue(voltageData.Uca)));
+
+                        }
+                    }
                     break;
                 case "Energy.Common.Entity.CurrentData":
+                    List<Energy.Common.Entity.CurrentData> listCurrent = (List<Energy.Common.Entity.CurrentData>)item;
+                    if (listCurrent.Count > 0)
+                    {
+                        builder.Append("insert into t_data_currentvalue ");
+                        for (int i = 0; i < listCurrent.Count; i++)
+                        {
+                            Entity.CurrentData currentData = listCurrent[i];
+                            if (i == 0)
+                                builder.Append(string.Format(" values('{0}','{1}','{2}',{3},{4},{5},{6})",
+                                    currentData.BuildID, currentData.MeterCode, currentData.Time.ToString("yyyy-MM-dd HH:mm:ss"),
+                                    Utils.ToolUtil.JudgeParamValue(currentData.I), Utils.ToolUtil.JudgeParamValue(currentData.Ia),
+                                    Utils.ToolUtil.JudgeParamValue(currentData.Ib), Utils.ToolUtil.JudgeParamValue(currentData.Ic)));
+                            else
+                                builder.Append(string.Format(" ,('{0}','{1}','{2}',{3},{4},{5},{6})",
+                                    currentData.BuildID, currentData.MeterCode, currentData.Time.ToString("yyyy-MM-dd HH:mm:ss"),
+                                    Utils.ToolUtil.JudgeParamValue(currentData.I), Utils.ToolUtil.JudgeParamValue(currentData.Ia),
+                                    Utils.ToolUtil.JudgeParamValue(currentData.Ib), Utils.ToolUtil.JudgeParamValue(currentData.Ic)));
+                        }
+                    }
+                    
                     break;
             }
             return builder.ToString();
