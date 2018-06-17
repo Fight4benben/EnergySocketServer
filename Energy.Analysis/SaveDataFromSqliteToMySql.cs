@@ -4,11 +4,63 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MySql.Data.MySqlClient;
+using Energy.Common.DAL;
+using System.Data.SQLite;
 
-namespace EnergyAnalysis
+namespace Energy.Analysis
 {
     public class SaveDataFromSqliteToMySql
     {
+        /// <summary>
+        /// 事务：将实时数据按照要求存入mysql数据库中，存储成功，则更新原始数据
+        /// </summary>
+        /// <param name="meters"></param>
+        /// <param name="header"></param>
+        public static void ExecuteInsertTransactions(MeterList meters,SourceDataHeader header)
+        {
+            
+            List<string> insertSqls = Energy.Common.DAL.MySQLHelper.GetInsertSqls(GetEnergyData(meters),GetVoltageData(meters),GetCurrentData(meters));
+
+            int count = 0;
+            MySqlConnection connection = new MySqlConnection(Runtime.MySqlConnectString);
+            SQLiteConnection sqliteConnection = new SQLiteConnection("Data Source=TempData;Version=3;");
+            SQLiteCommand sQLiteCommand = new SQLiteCommand(SQLiteHelper.GetUpdateStatusSQL(header),sqliteConnection);
+
+            connection.Open();
+            sqliteConnection.Open();
+
+            SQLiteTransaction sqliteTrans = sqliteConnection.BeginTransaction();
+            MySqlTransaction mySqlTrans = connection.BeginTransaction();
+            try
+            {
+                foreach (var sql in insertSqls)
+                {
+                    MySqlCommand mySqlCommand = new MySqlCommand(sql, connection, mySqlTrans);
+
+                    count += mySqlCommand.ExecuteNonQuery();
+                }
+                count += sQLiteCommand.ExecuteNonQuery();
+
+                sqliteTrans.Commit();
+                mySqlTrans.Commit();
+
+                Console.WriteLine("事务执行成功，共影响{0}条数据。",count);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("事务执行失败，正在回滚操作，失败内容为：{0}。",e.Message);
+                sqliteTrans.Rollback();
+                mySqlTrans.Rollback();
+                Console.WriteLine("事务回滚成功！");
+            }
+            finally
+            { 
+                sQLiteCommand.Connection.Close();
+                connection.Close();
+                Console.WriteLine("已关闭数据库连接！");
+            }
+        }
         /// <summary>
         /// 获取能耗值List
         /// </summary>

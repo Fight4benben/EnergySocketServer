@@ -38,7 +38,7 @@ namespace Energy.Common.DAL
         /// </summary>
         /// <param name="connectString"></param>
         /// <param name="lists"></param>
-        public static void ExecuteTransactionScope(string connectString,params object[] lists)
+        public static List<string> GetInsertSqls(params object[] lists)
         {
             List<string> sqls = new List<string>();
             foreach (var item in lists)
@@ -56,36 +56,7 @@ namespace Energy.Common.DAL
 
             }
 
-            Console.WriteLine(sqls);
-
-            //下面代码下次废弃
-            MySqlCommand command1 = InsertValueTransaction(connectString);
-            MySqlCommand command2 = InsertBuildingValue(connectString);
-
-            command1.Connection.Open();
-            command2.Connection.Open();
-            MySqlTransaction transaction1 = command1.Connection.BeginTransaction();
-            MySqlTransaction transaction2 = command2.Connection.BeginTransaction();
-
-            try
-            {
-                command1.ExecuteNonQuery();
-                command2.ExecuteNonQuery();
-            } catch (MySqlException ex)
-            {
-                transaction1.Rollback();
-                transaction2.Rollback();
-                command1.Connection.Close();
-                command2.Connection.Close();
-
-                return;
-            }
-
-            transaction1.Commit();
-            transaction2.Commit();
-
-            command1.Connection.Close();
-            command2.Connection.Close();
+            return sqls;
         }
 
         private static string GenerateSQLByList(string typeName,object item)

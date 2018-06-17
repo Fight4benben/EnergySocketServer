@@ -24,7 +24,7 @@ namespace Energy.Common.Utils
 
         public static bool SetSettingValue(string key, string value)
         {
-            string sql = string.Format("insert into appsettings values('{0}','{1}');",key,value);
+            string sql = string.Format("replace into appsettings values('{0}','{1}');",key,value);
 
             int count = SQLiteHelper.ExecuteNonQuery("settings",sql);
 

@@ -181,17 +181,13 @@ namespace Energy.Common.DAL
         /// 如果解析数据并且插入成功，则将Status标记为1,作为事务使用
         /// </summary>
         /// <returns></returns>
-        public static SQLiteCommand SetStatusTrue(SourceDataHeader header)
+        public static string GetUpdateStatusSQL(SourceDataHeader header)
         {
             string sql = string.Format(@"update GatewayData set Status=1 where BuildID='{0}' and GatewayID = '{1}' 
                             and CollectTime='{2}' and DatagramType='{3}';",header.BuildID,header.GatewayID,
                             header.CollectTime,header.DatagramType);
 
-            SQLiteConnection connection = new SQLiteConnection("Data Source=TempData;Version=3;");
-
-            SQLiteCommand command = new SQLiteCommand(sql,connection);
-
-            return command;
+            return sql;
         }
 
         public static int ExecuteNonQuery(string dbName,string sql)

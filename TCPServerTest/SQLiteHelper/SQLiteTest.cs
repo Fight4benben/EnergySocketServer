@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Energy.Common.Entity;
 using Energy.Common.DAL;
+using Energy.Common.Utils;
 
 namespace TCPServerTest.SQLiteHelper
 {
@@ -50,6 +51,18 @@ namespace TCPServerTest.SQLiteHelper
             {
                 Console.WriteLine("{0},{1},{2},{3},{4}",item.BuildID,item.GatewayID,item.CollectTime,item.DatagramType,item.Status);
             }
+
+        }
+
+        [TestMethod]
+        public void TestCreateSettings()
+        {
+            //Energy.Common.Utils.SettingsHelper.CreateSettingsDBTable();
+            //SettingsHelper.SetSettingValue("MySqlServer","127.0.0.1");
+            //SettingsHelper.SetSettingValue("MySqlPort", "3306");
+            //SettingsHelper.SetSettingValue("DatabaseNameDB", "energydb");
+            //SettingsHelper.SetSettingValue("MySqlUid", "root");
+            SettingsHelper.SetSettingValue("MySqlPwd", "Fight4benben");
 
         }
     }

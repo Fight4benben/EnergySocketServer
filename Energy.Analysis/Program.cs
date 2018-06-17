@@ -12,6 +12,7 @@ namespace Energy.Analysis
     {
         public static void Main(string[] args)
         {
+            Console.WriteLine("启动数据存储服务...");
 
         }
     }
