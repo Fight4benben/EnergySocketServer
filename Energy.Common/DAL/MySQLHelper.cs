@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Energy.Common.Utils;
 using MySql.Data.MySqlClient;
 
 namespace Energy.Common.DAL
@@ -134,6 +135,36 @@ namespace Energy.Common.DAL
                     break;
             }
             return builder.ToString();
+        }
+
+        /// <summary>
+        /// 获取前100个未处理数据的时间
+        /// </summary>
+        /// <returns></returns>
+        public static List<DateTime> GetUnCalculatedDataTimeList(string connectString)
+        {
+            List<DateTime> timeList = new List<DateTime>();
+            string sql = @"select F_Time FROM t_ov_origvalue
+                           where F_Calced = 0 group by F_Time 
+                           order by F_Time ASC limit 100; ";
+
+            using (MySqlConnection connection = new MySqlConnection(connectString))
+            {
+                connection.Open();
+
+                MySqlCommand command = new MySqlCommand(sql,connection);
+
+                MySqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    timeList.Add(Convert.ToDateTime(reader["F_Time"].ToString()));
+                }
+            } 
+
+            
+
+            return timeList;
         }
 
     }

@@ -36,5 +36,16 @@ namespace TCPServerTest.MySqlHelperTest
 
             SaveDataFromSqliteToMySql.ExecuteInsertTransactions(source,headerList[0]);
         }
+
+        [TestMethod]
+        public void TestGetUnCalculateTimeList()
+        {
+            List<DateTime> times = Energy.Common.DAL.MySQLHelper.GetUnCalculatedDataTimeList("Server=127.0.0.1;Port=3306;Database=energydb;Uid=root;Pwd=Fight4benben");
+
+            foreach (var item in times)
+            {
+                Console.WriteLine(item.ToString("yyyy-MM-dd HH:mm:ss"));
+            }
+        }
     }
 }

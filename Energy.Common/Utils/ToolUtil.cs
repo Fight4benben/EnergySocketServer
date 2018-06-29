@@ -19,6 +19,12 @@ namespace Energy.Common.Utils
             return dt;
         }
 
+        public static DateTime GetDateTimeFromString(string time, string format)
+        {
+            DateTime dt = DateTime.ParseExact(time, format, System.Globalization.CultureInfo.CurrentCulture);
+            return dt;
+        }
+
         public static byte[] AppendPacketHeader(int type,byte[] data)
         {
             int length = data.Length;
