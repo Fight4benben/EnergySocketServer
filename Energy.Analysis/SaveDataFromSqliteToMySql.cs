@@ -77,6 +77,8 @@ namespace Energy.Analysis
                 if (param == null)
                     continue;
 
+                //判断param.ParamError是否为错误状态，如果为错误状态则表示当前仪表通讯中断
+
                 energyDataList.Add(new OriginEnergyData()
                 {
                     BuildID = data.BuildId,

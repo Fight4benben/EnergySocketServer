@@ -47,5 +47,28 @@ namespace TCPServerTest.MySqlHelperTest
                 Console.WriteLine(item.ToString("yyyy-MM-dd HH:mm:ss"));
             }
         }
+
+        [TestMethod]
+        public void TestGetUnCalculateDataList()
+        {
+            List<DateTime> times = Energy.Common.DAL.MySQLHelper.GetUnCalculatedDataTimeList("Server=127.0.0.1;Port=3306;Database=energydb;Uid=root;Pwd=Fight4benben");
+
+            List<OriginEnergyData> list = Energy.Common.DAL.MySQLHelper.GetUnCalcedEnergyDataList("Server=127.0.0.1;Port=3306;Database=energydb;Uid=root;Pwd=Fight4benben",times[0],times[times.Count-1]);
+
+            Console.WriteLine(list.Count);
+        }
+
+        [TestMethod]
+        public void TestGetNextTime()
+        {
+            //List<DateTime> times = Energy.Common.DAL.MySQLHelper.GetUnCalculatedDataTimeList("Server=127.0.0.1;Port=3306;Database=energydb;Uid=root;Pwd=Fight4benben");
+            List<DateTime> times = new List<DateTime>();
+
+            times.Add(new DateTime(2018,6,20,10,10,0));
+            DateTime nextTime = times.Find(t=> t > times[0]);
+
+            Console.WriteLine(new DateTime().ToString("yyyy-MM-dd HH:mm:ss"));
+            Console.WriteLine(nextTime.ToString("yyyy-MM-dd HH:mm:ss"));
+        }
     }
 }

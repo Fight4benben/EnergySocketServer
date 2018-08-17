@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Energy.Common.Entity;
 using Energy.Common.Utils;
 using MySql.Data.MySqlClient;
 
@@ -32,6 +33,46 @@ namespace Energy.Common.DAL
             MySqlCommand command = new MySqlCommand(sql,connection);
 
             return command;
+        }
+
+        /// <summary>
+        /// 将数据通过事务插入到能源数据表中
+        /// </summary>
+        /// <param name="connectString">连接字符串</param>
+        /// <param name="sqls">多个能源的sql语句，分钟、小时、天</param>
+        /// <returns></returns>
+        private static bool InsertDataTable(string connectString,List<string> sqls)
+        {
+            using (MySqlConnection connection = new MySqlConnection(connectString))
+            {
+                connection.Open();
+                MySqlTransaction transaction = connection.BeginTransaction();
+                MySqlCommand command = new MySqlCommand();
+
+                command.Connection = connection;
+                command.Transaction = transaction;
+
+                try
+                {
+                    for (int i = 0; i < sqls.Count; i++)
+                    {
+                        string sql = sqls[i];
+                        command.CommandText = sql;
+                        command.ExecuteNonQuery();
+                    }
+
+                    transaction.Commit();
+                    connection.Close();
+
+                    return true;
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    connection.Close();
+                    return false;
+                }
+            }
         }
 
         /// <summary>
@@ -162,9 +203,39 @@ namespace Energy.Common.DAL
                 }
             } 
 
-            
-
             return timeList;
+        }
+
+        public static List<OriginEnergyData> GetUnCalcedEnergyDataList(string connectString,DateTime startTime,DateTime endTime)
+        {
+            List<OriginEnergyData> list = new List<OriginEnergyData>();
+
+            string sql = string.Format(@"select * from t_ov_origvalue
+                                        where F_Time between '{0}' and '{1}'
+                                        and F_Calced = 0",startTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                                        endTime.ToString("yyyy-MM-dd HH:mm:ss"));
+
+            using (MySqlConnection connection = new MySqlConnection(connectString))
+            {
+                connection.Open();
+
+                MySqlCommand command = new MySqlCommand(sql, connection);
+
+                MySqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    OriginEnergyData originEnergyData = new OriginEnergyData();
+                    originEnergyData.BuildID = reader["F_BuildID"].ToString();
+                    originEnergyData.MeterCode = reader["F_MeterCode"].ToString();
+                    originEnergyData.Time = Convert.ToDateTime(reader["F_Time"].ToString());
+                    originEnergyData.Value = Convert.ToSingle(reader["F_Value"]);
+                    originEnergyData.Calced = Convert.ToInt32(reader["F_Calced"])==0?false:true;
+                    list.Add(originEnergyData);
+                }
+            }
+
+            return list;
         }
 
     }

@@ -112,8 +112,59 @@ namespace Energy.Analysis
                 {
                     List<DateTime> times = MySQLHelper.GetUnCalculatedDataTimeList(Runtime.MySqlConnectString);
 
-                    //获取
+                    //获取该时间段内未处理的数据
+                    if (times.Count <= 1)
+                    {
+                        System.Threading.Thread.Sleep(1000 * 60);
+                        continue;
+                    }
 
+                    List<OriginEnergyData> list = MySQLHelper.GetUnCalcedEnergyDataList(Runtime.MySqlConnectString,times[0],times[times.Count-1]);
+
+                    foreach (DateTime time in times)
+                    {
+                        DateTime nextTime = times.Find(t => t>time);
+
+                        if (nextTime == null)
+                            continue;
+
+                        List<OriginEnergyData> currentList = list.FindAll(data=>data.Time == time);
+                        List<OriginEnergyData> nextList = list.FindAll(data => data.Time == nextTime);
+
+                        if (nextList.Count == 0)
+                        {
+                            continue;
+                        }
+
+                        List<CalcEnergyData> CalcedList = new List<CalcEnergyData>();
+
+                        //遍历当前currentList，根据主键内容取出nextList中的数据
+                        foreach (var item in currentList)
+                        {
+                            OriginEnergyData next = nextList.Find(data=>data.BuildID == item.BuildID && data.MeterCode == item.MeterCode);
+
+                            if (next == null)
+                                continue;
+
+                            if (next.Value == null || item.Value == null)
+                                continue;
+
+                            if ((next.Value - item.Value) < 0)
+                                continue;
+
+                            CalcedList.Add(new CalcEnergyData() {
+                                BuildID = item.BuildID,
+                                MeterCode = item.MeterCode,
+                                Time = item.Time,
+                                Value = next.Value-item.Value
+                            });
+                        }
+                        //批量插入CalcedList到数据库T_EC_XXXValue数据库表
+
+                        
+
+                        //将当前时间的数据Calced状态置为1，表示已经计算完成
+                    }
                 }
             }
         }
