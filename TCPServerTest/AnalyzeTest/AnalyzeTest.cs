@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Energy.Common.Entity;
 using Energy.Common.DAL;
 using System.Text;
+using Energy.Analysis;
 
 namespace TCPServerTest.AnalyzeTest
 {
@@ -109,6 +110,50 @@ namespace TCPServerTest.AnalyzeTest
             }
 
             Console.WriteLine(builder.ToString());
+        }
+
+        [TestMethod]
+        public void TestGenreateSQL()
+        {
+            string connString = "Server=127.0.0.1;Port=3306;Database=energydb;Uid=root;Pwd=Fight4benben";
+            List<DateTime> times = MySQLHelper.GetUnCalculatedDataTimeList(connString);
+
+            List<OriginEnergyData> list = MySQLHelper.GetUnCalcedEnergyDataList(connString, times[0], times[1]);
+
+            DateTime nextTime = times.Find(t => t > times[0]);
+
+
+            List<OriginEnergyData> currentList = list.FindAll(data => data.Time == times[0]);
+            List<OriginEnergyData> nextList = list.FindAll(data => data.Time == nextTime);
+
+            List<CalcEnergyData> CalcedList = new List<CalcEnergyData>();
+
+            //遍历当前currentList，根据主键内容取出nextList中的数据
+            foreach (var item in currentList)
+            {
+                OriginEnergyData next = nextList.Find(data => data.BuildID == item.BuildID && data.MeterCode == item.MeterCode);
+
+                if (next == null)
+                    continue;
+
+                if (next.Value == null || item.Value == null)
+                    continue;
+
+                if ((next.Value - item.Value) < 0)
+                    continue;
+
+                CalcedList.Add(new CalcEnergyData()
+                {
+                    BuildID = item.BuildID,
+                    MeterCode = item.MeterCode,
+                    Time = item.Time,
+                    Value = next.Value - item.Value
+                });
+            }
+
+            Console.WriteLine("Minute:"+Runtime.GenerateMinuteSQL(CalcedList));
+            Console.WriteLine("Hour:" + Runtime.GenreateHourSQL(CalcedList));
+            Console.WriteLine("Day:" + Runtime.GenreateDaySQL(CalcedList));
         }
     }
 }

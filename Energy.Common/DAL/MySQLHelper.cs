@@ -41,7 +41,7 @@ namespace Energy.Common.DAL
         /// <param name="connectString">连接字符串</param>
         /// <param name="sqls">多个能源的sql语句，分钟、小时、天</param>
         /// <returns></returns>
-        private static bool InsertDataTable(string connectString,List<string> sqls)
+        public static bool InsertDataTable(string connectString,List<string> sqls)
         {
             using (MySqlConnection connection = new MySqlConnection(connectString))
             {

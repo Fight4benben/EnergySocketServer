@@ -37,8 +37,12 @@ namespace Energy.Analysis
                 SettingsHelper.SetSettingValue("MySqlPwd", "Fight4benben");
 
             Thread transThread = new Thread(SaveDataToMysql);
+            Thread calcThread = new Thread(CalculateEnergyData);
 
             transThread.Start();
+            ShowLog("已启动转发线程");
+            calcThread.Start();
+            ShowLog("已启动计算线程");
 
             ShowLog("退出应用程序请输入quit.");
 
@@ -94,7 +98,6 @@ namespace Energy.Analysis
                     ShowLog("当前无数据需要处理，进行下一个周期的数据扫描...");
                     System.Threading.Thread.Sleep(1000*60); 
                 }
-
                 
             }
 
@@ -160,10 +163,18 @@ namespace Energy.Analysis
                             });
                         }
                         //批量插入CalcedList到数据库T_EC_XXXValue数据库表
+                        List<string> sqls = new List<string>();
+                        sqls.Add(Runtime.GenerateMinuteSQL(CalcedList));
+                        sqls.Add(Runtime.GenreateHourSQL(CalcedList));
+                        sqls.Add(Runtime.GenreateDaySQL(CalcedList));
+                        sqls.Add(Runtime.GenerateOrigStateSQL(time));
 
-                        
+                        bool result = MySQLHelper.InsertDataTable(Runtime.MySqlConnectString,sqls);
 
-                        //将当前时间的数据Calced状态置为1，表示已经计算完成
+                        if (result)
+                            ShowLog(string.Format("能耗值计算成功，数据时间为{0}", time.ToString("yyyy-MM-dd HH:mm:ss")));
+                        else
+                            ShowLog(string.Format("能耗值计算失败，数据时间为{0}", time.ToString("yyyy-MM-dd HH:mm:ss")));
                     }
                 }
             }

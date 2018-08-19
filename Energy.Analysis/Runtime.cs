@@ -15,24 +15,66 @@ namespace Energy.Analysis
             SettingsHelper.GetSettingValue("DatabaseNameDB"),SettingsHelper.GetSettingValue("MySqlUid"),
             SettingsHelper.GetSettingValue("MySqlPwd"));
 
+        /// <summary>
+        /// 生成5分钟表的插入代码
+        /// </summary>
+        /// <param name="list"></param>
+        /// <returns></returns>
         public static string GenerateMinuteSQL(List<CalcEnergyData> list)
         {
+            return GenerateEnergyValueSQL(list,"Minute");
+        }
+
+        public static string GenreateHourSQL(List<CalcEnergyData> list)
+        {
+            return GenerateEnergyValueSQL(list,"Hour");
+        }
+
+        public static string GenreateDaySQL(List<CalcEnergyData> list)
+        {
+            return GenerateEnergyValueSQL(list, "Day");
+        }
+
+        private static string GenerateEnergyValueSQL(List<CalcEnergyData> list,string type)
+        {
+            string tableName="t_ec_minutevalue";
+            string expression = "F_Value+VALUES(F_Value)";
+            string timeFormat = "yyyy-MM-dd HH:mm:ss";
+            switch (type)
+            {
+                case "Minute":
+                    tableName = "t_ec_minutevalue";
+                    expression = "VALUES(F_Value)";
+                    timeFormat = "yyyy-MM-dd HH:mm:ss";
+                    break;
+                case "Hour":
+                    tableName = "t_ec_hourvalue";
+                    expression = "F_Value+VALUES(F_Value)";
+                    timeFormat = "yyyy-MM-dd HH:00:00";
+                    break;
+                case "Day":
+                    tableName = "t_ec_dayvalue";
+                    expression = "F_Value+VALUES(F_Value)";
+                    timeFormat = "yyyy-MM-dd 00:00:00";
+                    break; 
+            }
+
             StringBuilder builder = new StringBuilder();
 
-            if(list.Count>0)
+            if (list.Count > 0)
             {
-                builder.Append("INSERT INTO t_ec_minutevalue(F_BuildID,F_MeterCode,F_Time,F_Value) VALUES");
+                builder.Append(string.Format("INSERT INTO {0} (F_BuildID,F_MeterCode,F_Time,F_Value) VALUES",tableName));
                 for (int i = 0; i < list.Count; i++)
                 {
                     if (i == 0)
                         builder.Append(string.Format("('{0}','{1}','{2}',{3})", list[i].BuildID, list[i].MeterCode,
-                            list[i].Time.ToString("yyyy-MM-dd HH:mm:ss"), list[i].Value));
+                            list[i].Time.ToString(timeFormat), list[i].Value));
                     else
                         builder.Append(string.Format(",('{0}','{1}','{2}',{3})", list[i].BuildID, list[i].MeterCode,
-                            list[i].Time.ToString("yyyy-MM-dd HH:mm:ss"), list[i].Value));
+                            list[i].Time.ToString(timeFormat), list[i].Value));
                 }
 
-                builder.Append("  ON DUPLICATE KEY UPDATE F_Value=VALUES(F_Value);");
+                builder.Append(string.Format("  ON DUPLICATE KEY UPDATE F_Value={0};",expression));
             }
 
             return builder.ToString();
@@ -40,7 +82,7 @@ namespace Energy.Analysis
 
         public static string GenerateOrigStateSQL(DateTime time)
         {
-            return "";
+            return string.Format("UPDATE t_ov_origvalue SET F_Calced=1 WHERE F_Time='{0}'",time.ToString("yyyy-MM-dd HH:mm:ss"));
         }
     }
 }
