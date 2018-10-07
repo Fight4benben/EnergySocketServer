@@ -65,5 +65,12 @@ namespace TCPServerTest.SQLiteHelper
             SettingsHelper.SetSettingValue("MySqlPwd", "Fight4benben");
 
         }
+
+        [TestMethod]
+        public void TestDeleteStoredData()
+        {
+            int result = Energy.Common.DAL.SQLiteHelper.DeleteStoredGatewayDataFromDB();
+            Console.WriteLine(result);
+        }
     }
 }

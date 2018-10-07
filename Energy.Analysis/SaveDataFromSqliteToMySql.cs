@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using Energy.Common.DAL;
 using System.Data.SQLite;
+using System.Threading;
 
 namespace Energy.Analysis
 {
@@ -45,20 +46,20 @@ namespace Energy.Analysis
                 sqliteTrans.Commit();
                 mySqlTrans.Commit();
 
-                Console.WriteLine("事务执行成功，共影响{0}条数据。",count);
+                Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "<" + Thread.CurrentThread.ManagedThreadId.ToString() + "> -> " + "事务执行成功，共影响{0}条数据。",count);
             }
             catch (Exception e)
             {
-                Console.WriteLine("事务执行失败，正在回滚操作，失败内容为：{0}。",e.Message);
+                Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "<" + Thread.CurrentThread.ManagedThreadId.ToString() + "> -> " + "事务执行失败，正在回滚操作，失败内容为：{0}。",e.Message);
                 sqliteTrans.Rollback();
                 mySqlTrans.Rollback();
-                Console.WriteLine("事务回滚成功！");
+                Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "<" + Thread.CurrentThread.ManagedThreadId.ToString() + "> -> " + "事务回滚成功！");
             }
             finally
             { 
                 sQLiteCommand.Connection.Close();
                 connection.Close();
-                Console.WriteLine("已关闭数据库连接！");
+                Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "<" + Thread.CurrentThread.ManagedThreadId.ToString() + "> -> " + "已关闭数据库连接！");
             }
         }
         /// <summary>

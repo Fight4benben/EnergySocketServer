@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Energy.Common.Entity;
 using Energy.Common.Utils;
@@ -50,27 +51,37 @@ namespace Energy.Common.DAL
                 MySqlCommand command = new MySqlCommand();
 
                 command.Connection = connection;
+                command.CommandTimeout = 0;
                 command.Transaction = transaction;
-
+                
                 try
                 {
                     for (int i = 0; i < sqls.Count; i++)
                     {
+                        //当计算后List为空的情况下，生成的SQL为"",此时不应该执行语句
+                        if (sqls[i] == "")
+                            continue;
+
                         string sql = sqls[i];
                         command.CommandText = sql;
                         command.ExecuteNonQuery();
                     }
 
                     transaction.Commit();
-                    connection.Close();
+                    Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "<" + Thread.CurrentThread.ManagedThreadId.ToString() + "> -> " + "执行SQL计算事务...");
 
                     return true;
                 }
-                catch
+                catch (Exception e)
                 {
+
+                    Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "<" + Thread.CurrentThread.ManagedThreadId.ToString() + "> -> " + e.Message);
                     transaction.Rollback();
-                    connection.Close();
                     return false;
+                }
+                finally
+                {
+                    connection.Close();
                 }
             }
         }

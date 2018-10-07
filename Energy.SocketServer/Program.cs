@@ -20,10 +20,10 @@ namespace Energy.SocketServer
             SQLiteHelper.CreateTempDataTable("TempData");
             Console.WriteLine("{0} -> Finish TempData DB and GatewayData Table Checked.", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
 
-            Console.WriteLine("{0} -> Press any key to start the server!", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+            //Console.WriteLine("{0} -> Press any key to start the server!", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
 
-            Console.ReadKey();
-            Console.WriteLine();
+            //Console.ReadKey();
+            //Console.WriteLine();
 
             var bootstrap = BootstrapFactory.CreateBootstrap();
 

@@ -105,6 +105,31 @@ namespace Energy.Common.DAL
             return true;
         }
 
+        /// <summary>
+        /// 删除已经存储并解析到mysql数据的原始报文数据
+        /// </summary>
+        /// <returns></returns>
+        public static int DeleteStoredGatewayDataFromDB()
+        {
+            string sql = "delete from GatewayData where Status=1";
+
+            using (SQLiteConnection connection = new SQLiteConnection("Data Source=TempData;Version=3;"))
+            {
+                connection.Open();
+                try
+                {
+                    SQLiteCommand command = new SQLiteCommand(sql, connection);
+                    int result =command.ExecuteNonQuery();
+
+                    return result;
+                }
+                catch
+                {
+                    return -9999;
+                }
+            }
+        }
+
         public static SourceData GetFirstGatewayData()
         {
             string sql = @"select * from {0} where Status=0 order by CollectTime ASC limit 0,1;";

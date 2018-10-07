@@ -177,6 +177,9 @@ namespace Energy.Analysis
                             ShowLog(string.Format("能耗值计算失败，数据时间为{0}", time.ToString("yyyy-MM-dd HH:mm:ss")));
                     }
                 }
+
+                ShowLog("当前未到能耗计算时间，请稍后...");
+                System.Threading.Thread.Sleep(1000*60);
             }
         }
 
