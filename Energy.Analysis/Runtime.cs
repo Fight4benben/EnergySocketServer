@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Energy.Common.Entity;
 using Energy.Common.Utils;
+using NLog;
 
 namespace Energy.Analysis
 {
@@ -15,6 +16,7 @@ namespace Energy.Analysis
             SettingsHelper.GetSettingValue("DatabaseNameDB"),SettingsHelper.GetSettingValue("MySqlUid"),
             SettingsHelper.GetSettingValue("MySqlPwd"));
 
+        public static Logger m_Logger = LogManager.GetLogger("Analysis");
         /// <summary>
         /// 生成5分钟表的插入代码
         /// </summary>
