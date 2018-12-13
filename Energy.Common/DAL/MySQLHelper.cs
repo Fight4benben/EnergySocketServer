@@ -185,6 +185,53 @@ namespace Energy.Common.DAL
                     }
                     
                     break;
+                case "Energy.Common.Entity.PowerData":
+                    List<Energy.Common.Entity.PowerData> listPower = (List<Energy.Common.Entity.PowerData>)item;
+                    if (listPower.Count > 0)
+                    {
+                        builder.Append("insert into t_data_power ");
+                        for (int i = 0; i < listPower.Count; i++)
+                        {
+                            Energy.Common.Entity.PowerData powerData = listPower[i];
+                            if (i == 0)
+                                builder.Append(string.Format(" values('{0}','{1}','{2}',{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14})",
+                                    powerData.BuildID,powerData.MeterCode, powerData.Time.ToString("yyyy-MM-dd HH:mm:ss"),
+                                    Utils.ToolUtil.JudgeParamValue(powerData.P), Utils.ToolUtil.JudgeParamValue(powerData.Pa), Utils.ToolUtil.JudgeParamValue(powerData.Pb), Utils.ToolUtil.JudgeParamValue(powerData.Pc),
+                                    Utils.ToolUtil.JudgeParamValue(powerData.Q), Utils.ToolUtil.JudgeParamValue(powerData.Qa), Utils.ToolUtil.JudgeParamValue(powerData.Qb), Utils.ToolUtil.JudgeParamValue(powerData.Qc),
+                                    Utils.ToolUtil.JudgeParamValue(powerData.S), Utils.ToolUtil.JudgeParamValue(powerData.Sa), Utils.ToolUtil.JudgeParamValue(powerData.Sb), Utils.ToolUtil.JudgeParamValue(powerData.Sc)));
+                            else
+                                builder.Append(string.Format(" ,('{0}','{1}','{2}',{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14})",
+                                    powerData.BuildID, powerData.MeterCode, powerData.Time.ToString("yyyy-MM-dd HH:mm:ss"),
+                                    Utils.ToolUtil.JudgeParamValue(powerData.P), Utils.ToolUtil.JudgeParamValue(powerData.Pa), Utils.ToolUtil.JudgeParamValue(powerData.Pb), Utils.ToolUtil.JudgeParamValue(powerData.Pc),
+                                    Utils.ToolUtil.JudgeParamValue(powerData.Q), Utils.ToolUtil.JudgeParamValue(powerData.Qa), Utils.ToolUtil.JudgeParamValue(powerData.Qb), Utils.ToolUtil.JudgeParamValue(powerData.Qc),
+                                    Utils.ToolUtil.JudgeParamValue(powerData.S), Utils.ToolUtil.JudgeParamValue(powerData.Sa), Utils.ToolUtil.JudgeParamValue(powerData.Sb), Utils.ToolUtil.JudgeParamValue(powerData.Sc)));
+                        }
+                    }
+                    break;
+                case "Energy.Common.Entity.BaseElecData":
+                    List<Energy.Common.Entity.BaseElecData> listBaseElec = (List<Energy.Common.Entity.BaseElecData>)item;
+                    if (listBaseElec.Count > 0)
+                    {
+                        builder.Append("insert into t_data_baseelecparam ");
+                        for (int i = 0; i < listBaseElec.Count; i++)
+                        {
+                            Energy.Common.Entity.BaseElecData baseElecData = listBaseElec[i];
+                            if (i == 0)
+                            {
+                                builder.Append(string.Format(" values('{0}','{1}','{2}',{3},{4})",
+                                   baseElecData.BuildID, baseElecData.MeterCode, baseElecData.Time.ToString("yyyy-MM-dd HH:mm:ss"),
+                                   Utils.ToolUtil.JudgeParamValue(baseElecData.PF), Utils.ToolUtil.JudgeParamValue(baseElecData.Fr)));
+                            }
+                            else
+                            {
+                                builder.Append(string.Format(" ,('{0}','{1}','{2}',{3},{4})",
+                                   baseElecData.BuildID, baseElecData.MeterCode, baseElecData.Time.ToString("yyyy-MM-dd HH:mm:ss"),
+                                   Utils.ToolUtil.JudgeParamValue(baseElecData.PF), Utils.ToolUtil.JudgeParamValue(baseElecData.Fr)));
+                            }
+                        }
+                        
+                    }
+                    break;
             }
             return builder.ToString();
         }

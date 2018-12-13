@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="DAL\MySQLHelper.cs" />
     <Compile Include="DAL\SQLiteHelper.cs" />
+    <Compile Include="Entity\BaseElecData.cs" />
     <Compile Include="Entity\CalcEnergyData.cs" />
     <Compile Include="Entity\CurrentData.cs" />
     <Compile Include="Entity\EnergyData.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="Entity\Meter.cs" />
     <Compile Include="Entity\MeterList.cs" />
     <Compile Include="Entity\MeterParam.cs" />
+    <Compile Include="Entity\PowerData.cs" />
     <Compile Include="Entity\SourceData.cs" />
     <Compile Include="Entity\SourceDataHeader.cs" />
     <Compile Include="Entity\VoltageData.cs" />

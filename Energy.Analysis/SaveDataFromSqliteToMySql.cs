@@ -21,7 +21,8 @@ namespace Energy.Analysis
         public static void ExecuteInsertTransactions(MeterList meters,SourceDataHeader header)
         {
             
-            List<string> insertSqls = Energy.Common.DAL.MySQLHelper.GetInsertSqls(GetEnergyData(meters),GetVoltageData(meters),GetCurrentData(meters));
+            List<string> insertSqls = Energy.Common.DAL.MySQLHelper.GetInsertSqls(GetEnergyData(meters),GetVoltageData(meters),
+                GetCurrentData(meters),GetPowerData(meters),GetBaseElecData(meters));
 
             int count = 0;
             MySqlConnection connection = new MySqlConnection(Runtime.MySqlConnectString);
@@ -160,10 +161,10 @@ namespace Energy.Analysis
                 current.MeterCode = item.MeterId;
                 current.Time = data.CollectTime;
 
-                MeterParam i = item.MeterParams.Find(m => m.ParamName.ToLower() == "U".ToLower());
-                MeterParam ia = item.MeterParams.Find(m => m.ParamName.ToLower() == "Ua".ToLower());
-                MeterParam ib = item.MeterParams.Find(m => m.ParamName.ToLower() == "Ub".ToLower());
-                MeterParam ic = item.MeterParams.Find(m => m.ParamName.ToLower() == "Uc".ToLower());
+                MeterParam i = item.MeterParams.Find(m => m.ParamName.ToLower() == "I".ToLower());
+                MeterParam ia = item.MeterParams.Find(m => m.ParamName.ToLower() == "Ia".ToLower());
+                MeterParam ib = item.MeterParams.Find(m => m.ParamName.ToLower() == "Ib".ToLower());
+                MeterParam ic = item.MeterParams.Find(m => m.ParamName.ToLower() == "Ic".ToLower());
 
                 if (i != null)
                     current.I = i.ParamValue;
@@ -181,6 +182,101 @@ namespace Energy.Analysis
             }
 
             return currentDataList;
+        }
+
+        /// <summary>
+        /// 解析功率数据
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static List<PowerData> GetPowerData(MeterList data)
+        {
+            List<PowerData> powerDataList = new List<PowerData>();
+
+            foreach (var item in data.Meters)
+            {
+                PowerData power = new PowerData();
+                power.BuildID = data.BuildId;
+                power.MeterCode = item.MeterId;
+                power.Time = data.CollectTime;
+
+                MeterParam p = item.MeterParams.Find(m => m.ParamName.ToLower() == "P".ToLower());
+                MeterParam pa = item.MeterParams.Find(m => m.ParamName.ToLower() == "Pa".ToLower());
+                MeterParam pb = item.MeterParams.Find(m => m.ParamName.ToLower() == "Pb".ToLower());
+                MeterParam pc = item.MeterParams.Find(m => m.ParamName.ToLower() == "Pc".ToLower());
+
+                MeterParam q = item.MeterParams.Find(m => m.ParamName.ToLower() == "Q".ToLower());
+                MeterParam qa = item.MeterParams.Find(m => m.ParamName.ToLower() == "Qa".ToLower());
+                MeterParam qb = item.MeterParams.Find(m => m.ParamName.ToLower() == "Qb".ToLower());
+                MeterParam qc = item.MeterParams.Find(m => m.ParamName.ToLower() == "Qc".ToLower());
+
+                MeterParam s = item.MeterParams.Find(m => m.ParamName.ToLower() == "S".ToLower());
+                MeterParam sa = item.MeterParams.Find(m => m.ParamName.ToLower() == "Sa".ToLower());
+                MeterParam sb = item.MeterParams.Find(m => m.ParamName.ToLower() == "Sb".ToLower());
+                MeterParam sc = item.MeterParams.Find(m => m.ParamName.ToLower() == "Sc".ToLower());
+
+                if (p != null)
+                    power.P = p.ParamValue;
+                if (pa != null)
+                    power.Pa = pa.ParamValue;
+                if (pb != null)
+                    power.Pb = pb.ParamValue;
+                if (pc != null)
+                    power.Pc = pc.ParamValue;
+
+                if (q != null)
+                    power.Q = q.ParamValue;
+                if (qa != null)
+                    power.Qa = qa.ParamValue;
+                if (qb != null)
+                    power.Qb = qb.ParamValue;
+                if (qc != null)
+                    power.Qc = qc.ParamValue;
+
+                if (s != null)
+                    power.S = s.ParamValue;
+                if (sa != null)
+                    power.Sa = sa.ParamValue;
+                if (sb != null)
+                    power.Sb = sb.ParamValue;
+                if (sc != null)
+                    power.Sc = sc.ParamValue;
+
+                powerDataList.Add(power);
+            }
+
+            return powerDataList;
+        }
+
+        /// <summary>
+        /// 解析PF，Fr参数
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static List<BaseElecData> GetBaseElecData(MeterList data)
+        {
+            List<BaseElecData> baseElecDataList = new List<BaseElecData>();
+
+            foreach (var item in data.Meters)
+            {
+                BaseElecData baseElec = new BaseElecData();
+                baseElec.BuildID = data.BuildId;
+                baseElec.MeterCode = item.MeterId;
+                baseElec.Time = data.CollectTime;
+
+                MeterParam pf = item.MeterParams.Find(m => m.ParamName.ToLower() == "PF".ToLower());
+                MeterParam fr = item.MeterParams.Find(m => m.ParamName.ToLower() == "Fr".ToLower());
+
+                if (pf != null)
+                    baseElec.PF = pf.ParamValue;
+
+                if (fr != null)
+                    baseElec.Fr = fr.ParamValue;
+
+                baseElecDataList.Add(baseElec);
+            }
+
+            return baseElecDataList;
         }
 
 
