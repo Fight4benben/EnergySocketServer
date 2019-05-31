@@ -44,6 +44,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Energy.Analysis", "Energy.A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Energy.SocketServer", "Energy.SocketServer\Energy.SocketServer.csproj", "{570B9EC8-2411-4F4A-801A-F0A9A526388C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Energy.Start", "Energy.Start\Energy.Start.csproj", "{DC10BBD5-C1A9-45B6-9722-2E42BF425815}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -121,6 +123,12 @@ Global
 		{570B9EC8-2411-4F4A-801A-F0A9A526388C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{570B9EC8-2411-4F4A-801A-F0A9A526388C}.Test|Any CPU.ActiveCfg = Release|Any CPU
 		{570B9EC8-2411-4F4A-801A-F0A9A526388C}.Test|Any CPU.Build.0 = Release|Any CPU
+		{DC10BBD5-C1A9-45B6-9722-2E42BF425815}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC10BBD5-C1A9-45B6-9722-2E42BF425815}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC10BBD5-C1A9-45B6-9722-2E42BF425815}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC10BBD5-C1A9-45B6-9722-2E42BF425815}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC10BBD5-C1A9-45B6-9722-2E42BF425815}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{DC10BBD5-C1A9-45B6-9722-2E42BF425815}.Test|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

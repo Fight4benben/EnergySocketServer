@@ -58,14 +58,32 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
-    <Reference Include="log4net">
-      <HintPath>..\Reference\log4net.dll</HintPath>
+    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="MySql.Data, Version=6.9.12.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <HintPath>..\packages\MySql.Data.6.9.12\lib\net45\MySql.Data.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.4.5.11\lib\net45\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="SuperSocket.Common, Version=1.6.6.1, Culture=neutral, PublicKeyToken=6c80000676988ebb, processorArchitecture=MSIL">
+      <HintPath>..\packages\SuperSocket.1.6.6.1\lib\net45\SuperSocket.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="SuperSocket.Facility, Version=1.6.6.1, Culture=neutral, PublicKeyToken=6c80000676988ebb, processorArchitecture=MSIL">
+      <HintPath>..\packages\SuperSocket.1.6.6.1\lib\net45\SuperSocket.Facility.dll</HintPath>
+    </Reference>
+    <Reference Include="SuperSocket.SocketBase, Version=1.6.6.1, Culture=neutral, PublicKeyToken=6c80000676988ebb, processorArchitecture=MSIL">
+      <HintPath>..\packages\SuperSocket.1.6.6.1\lib\net45\SuperSocket.SocketBase.dll</HintPath>
+    </Reference>
+    <Reference Include="SuperSocket.SocketEngine, Version=1.6.6.1, Culture=neutral, PublicKeyToken=6c80000676988ebb, processorArchitecture=MSIL">
+      <HintPath>..\packages\SuperSocket.Engine.1.6.6.1\lib\net45\SuperSocket.SocketEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="SuperSocket.SocketService, Version=1.6.6.1, Culture=neutral, PublicKeyToken=6c80000676988ebb, processorArchitecture=MSIL">
+      <HintPath>..\packages\SuperSocket.Engine.1.6.6.1\lib\net45\SuperSocket.SocketService.exe</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -80,7 +98,13 @@
     <Reference Include="System.Data.SQLite.Linq, Version=1.0.108.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Data.SQLite.Linq.1.0.108.0\lib\net45\System.Data.SQLite.Linq.dll</HintPath>
     </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -98,35 +122,32 @@
     <Compile Include="Protocol\SHaiServer.cs" />
     <Compile Include="Protocol\SHaiSession.cs" />
     <Compile Include="Runtime.cs" />
+    <Compile Include="ServerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ServerForm.Designer.cs">
+      <DependentUpon>ServerForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Config\log4net.config" />
+    <None Include="Config\log4net.unix.config" />
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="NLog.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
+    <None Include="supersocket.cmd" />
+    <None Include="supersocket.sh" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Common\SuperSocket.Common.Net45.csproj">
-      <Project>{a24f4d38-ba9c-4fd6-95b7-4980de36131a}</Project>
-      <Name>SuperSocket.Common.Net45</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Energy.Common\Energy.Common.csproj">
       <Project>{246d8ae9-a88d-43e2-9c8f-bf0096f77d03}</Project>
       <Name>Energy.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Facility\SuperSocket.Facility.Net45.csproj">
-      <Project>{01987bac-c498-44dd-b274-62ea2506b51d}</Project>
-      <Name>SuperSocket.Facility.Net45</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SocketBase\SuperSocket.SocketBase.Net45.csproj">
-      <Project>{40b77789-ea11-4c05-8f52-86711d7bcaaf}</Project>
-      <Name>SuperSocket.SocketBase.Net45</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SocketEngine\SuperSocket.SocketEngine.Net45.csproj">
-      <Project>{153fef72-191c-43d9-be71-2b351c7ac760}</Project>
-      <Name>SuperSocket.SocketEngine.Net45</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SocketService\SuperSocket.SocketService.Net45.csproj">
-      <Project>{b9113694-7226-4152-938d-3172b11571a1}</Project>
-      <Name>SuperSocket.SocketService.Net45</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
