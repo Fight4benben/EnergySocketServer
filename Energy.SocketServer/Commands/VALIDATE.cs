@@ -41,7 +41,7 @@ namespace Energy.SocketServer.Commands
             else if (message.MessageAttribute == "md5")
             {
                 byte[] data;
-                if (Runtime.m_GateWayInfo[key] == message.MessageContent)
+                if (Runtime.m_GateWayInfo[key].ToUpper() == message.MessageContent.ToUpper())
                 {
                     Console.WriteLine("{0} -> MD5信息比对成功：" + message.BuildID + "," + message.GatewayID, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
                     data = XMLHelper.GetXmlBytes(message, "id_validate", "result", "pass");

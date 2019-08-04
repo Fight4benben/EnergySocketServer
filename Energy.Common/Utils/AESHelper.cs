@@ -71,8 +71,17 @@ namespace Energy.Common.Utils
             rijndaelCipher.IV = ivBytes;
 
             ICryptoTransform transformer = rijndaelCipher.CreateDecryptor();
+            byte[] plainText;
 
-            byte[] plainText = transformer.TransformFinalBlock(source,0,source.Length);
+            try
+            {
+                plainText = transformer.TransformFinalBlock(source, 0, source.Length);
+            }
+            catch
+            {
+                return Encoding.UTF8.GetString(source);
+            }
+            
 
             return Encoding.UTF8.GetString(plainText);
         }
