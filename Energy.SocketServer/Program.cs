@@ -26,6 +26,7 @@ namespace Energy.SocketServer
             //Console.WriteLine();
 
             var bootstrap = BootstrapFactory.CreateBootstrap();
+           
 
             if (!bootstrap.Initialize())
             {
@@ -45,22 +46,25 @@ namespace Energy.SocketServer
                 return;
             }
 
-            Console.WriteLine("Press key 'q' to stop it!");
-
-            while (Console.ReadKey().KeyChar != 'q')
+            while (true)
             {
-                Console.WriteLine();
-                continue;
             }
+            //Console.WriteLine("Press key 'q' to stop it!");
 
-            Console.WriteLine();
+            //while (Console.ReadKey().KeyChar != 'q')
+            //{
+            //    Console.WriteLine();
+            //    continue;
+            //}
 
-            
+            //Console.WriteLine();
+
+
             //Stop the appServer
-            bootstrap.Stop();
+            //bootstrap.Stop();
 
-            Console.WriteLine("{0} -> The server was stopped!", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
-            Console.ReadKey();
+            // Console.WriteLine("{0} -> The server was stopped!", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+            // Console.ReadKey();
 
         }
     }

@@ -6,6 +6,8 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using Energy.Common.Entity;
+using MongoDB.Bson;
+using Energy.Common.DAL;
 
 namespace Energy.Common.Utils
 {
@@ -132,30 +134,95 @@ namespace Energy.Common.Utils
 
             XmlNodeList nodeList = doc.SelectNodes("/root/data/meters/meter");
 
+            //List<BsonDocument> bsonList = new List<BsonDocument>();
+
             foreach (XmlNode item in nodeList)
             {
+                //BsonDocument document = new BsonDocument();
+
                 List<MeterParam> paramList = new List<MeterParam>();
                 string meterid = item.Attributes["id"].Value;
+                //document.Add("F_BuildId",buildId);
+                //document.Add("F_GatewayId", gatewayId);
+                //document.Add("F_Time",collectTime.ToString("yyyy-MM-dd HH:mm:00"));
                 XmlNodeList nodeParams = item.SelectNodes("function");
+                bool meterStatus = true;
                 foreach (XmlNode paramNode in nodeParams)
                 {
                     string paramName = paramNode.Attributes["id"].Value;
-                    string paramError = paramNode.Attributes["error"].Value;
+                    string paramError = paramNode.Attributes["error"].Value.Trim();
+
                     float paramValue;
                     if (paramNode.InnerText != "")
                     {
                         paramValue = Convert.ToSingle(paramNode.InnerText);
+                        //document.Add(paramName,paramValue);
                         paramList.Add(new MeterParam(paramName, paramError, paramValue));
                     }
                     else
                     {
                         paramList.Add(new MeterParam(paramName, paramError, null));
                     }
+
                 }
-                meterList.Add(new Meter(meterid,paramList));
+                //bsonList.Add(document);
+                meterList.Add(new Meter(meterStatus,meterid,paramList));
             }
+   
+            //MongoHelper helper = MongoHelper.GetInstance();
+            //var collection = helper.GetCollection("HistoryData");
+            //collection.InsertMany(bsonList); 
 
             return JsonConvert.SerializeObject(new MeterList(buildId, gatewayId, collectTime, status, meterList)).ToString();
+        }
+
+
+        public static List<YangZhuChangMeter> GetYangZhuChangMeters(string xmlSource)
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(xmlSource);
+
+            string buildId = doc.SelectSingleNode("/root/common/building_id").InnerText;
+            string gatewayId = doc.SelectSingleNode("/root/common/gateway_id").InnerText;
+            string type = doc.SelectSingleNode("/root/common/type").InnerText;
+            DateTime collectTime = ToolUtil.GetDateTimeFromString(doc.SelectSingleNode("/root/data/time").InnerText);
+      
+            List<YangZhuChangMeter> meterList = new List<YangZhuChangMeter>();
+
+            XmlNodeList nodeList = doc.SelectNodes("/root/data/meters/meter");
+
+            foreach (XmlNode item in nodeList)
+            {
+                YangZhuChangMeter tempMeter = new YangZhuChangMeter();
+                
+                string meterid = item.Attributes["id"].Value;
+                
+                XmlNodeList nodeParams = item.SelectNodes("function");
+                int meterStatus = 1;
+                foreach (XmlNode paramNode in nodeParams)
+                {
+                    string paramName = paramNode.Attributes["id"].Value;
+                    string paramError = paramNode.Attributes["error"].Value.Trim();
+
+                    if (paramName == "EPI" || paramName == "LJLL")
+                    {
+                        meterStatus = string.IsNullOrEmpty(paramError) ? 1 : 0;
+
+                        decimal paramValue;
+                        paramValue = Convert.ToDecimal(paramNode.InnerText);
+                        tempMeter.BuildId = buildId;
+                        tempMeter.GatewayName = gatewayId;
+                        tempMeter.MeterCode = meterid;
+                        tempMeter.Time = collectTime;
+                        tempMeter.Status = meterStatus;
+                        tempMeter.Value = paramValue;
+                    }
+                }
+
+                meterList.Add(tempMeter);
+            }
+
+            return meterList;
         }
 
     }

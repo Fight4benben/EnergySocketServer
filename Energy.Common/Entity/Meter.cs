@@ -16,6 +16,13 @@ namespace Energy.Common.Entity
             this.MeterId = meterId;
             this.MeterParams = meterParams;
         }
+        public Meter(bool status,string meterId, List<MeterParam> meterParams)
+        {
+            this.Status = status;
+            this.MeterId = meterId;
+            this.MeterParams = meterParams;
+        }
+        public bool Status { get; set; }
         public string MeterId { get; set; }
         public List<MeterParam> MeterParams { get; set; }
     }

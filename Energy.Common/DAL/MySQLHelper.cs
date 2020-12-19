@@ -296,5 +296,44 @@ namespace Energy.Common.DAL
             return list;
         }
 
+        public static int InsertRealTimeValues(string connectString,List<YangZhuChangMeter> list)
+        {
+            if (list.Count == 0)
+                return 0;
+
+            StringBuilder builder = new StringBuilder();
+            builder.Append("replace into t_data_realtimevalue(BuildId,GatewayName,MeterCode,Time,Value,Status)");
+            for (int i = 0; i < list.Count; i++)
+            {
+                YangZhuChangMeter temp = list[i];
+                if (i == 0)
+                {
+                    builder.Append(string.Format(" values('{0}','{1}','{2}','{3}',{4},'{5}')", temp.BuildId, temp.GatewayName, temp.MeterCode,
+                        temp.Time.ToString("yyyy-MM-dd HH:mm:00"), temp.Value, temp.Status));
+                }
+                else
+                {
+                    builder.Append(string.Format(" ,('{0}','{1}','{2}','{3}',{4},'{5}')", temp.BuildId, temp.GatewayName, temp.MeterCode,
+                        temp.Time.ToString("yyyy-MM-dd HH:mm:00"), temp.Value, temp.Status));
+                }
+            }
+
+            using (MySqlConnection connection = new MySqlConnection(connectString))
+            {
+                connection.Open();
+                try
+                {
+                    MySqlCommand command = new MySqlCommand(builder.ToString(), connection);
+                    command.CommandText = builder.ToString();
+                    command.Connection = connection;
+                    command.CommandType = System.Data.CommandType.Text;
+                    return command.ExecuteNonQuery();
+                }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+            }
+        }
     }
 }
