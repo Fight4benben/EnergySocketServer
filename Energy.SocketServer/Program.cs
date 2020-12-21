@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Energy.Common.DAL;
 using Energy.SocketServer.Protocol;
+using System.Threading;
 
 namespace Energy.SocketServer
 {
@@ -46,8 +47,11 @@ namespace Energy.SocketServer
                 return;
             }
 
+
+
             while (true)
             {
+                Thread.Sleep(1);
             }
             //Console.WriteLine("Press key 'q' to stop it!");
 
@@ -63,8 +67,8 @@ namespace Energy.SocketServer
             //Stop the appServer
             //bootstrap.Stop();
 
-            // Console.WriteLine("{0} -> The server was stopped!", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
-            // Console.ReadKey();
+            //Console.WriteLine("{0} -> The server was stopped!", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+            //Console.ReadKey();
 
         }
     }

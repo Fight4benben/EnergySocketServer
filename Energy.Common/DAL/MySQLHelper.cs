@@ -302,7 +302,9 @@ namespace Energy.Common.DAL
                 return 0;
 
             StringBuilder builder = new StringBuilder();
+            StringBuilder builder1 = new StringBuilder();
             builder.Append("replace into t_data_realtimevalue(BuildId,GatewayName,MeterCode,Time,Value,Status)");
+            builder1.Append("replace into t_data_historyvalue(BuildId,GatewayName,MeterCode,Time,Value,Status)");
             for (int i = 0; i < list.Count; i++)
             {
                 YangZhuChangMeter temp = list[i];
@@ -310,14 +312,18 @@ namespace Energy.Common.DAL
                 {
                     builder.Append(string.Format(" values('{0}','{1}','{2}','{3}',{4},'{5}')", temp.BuildId, temp.GatewayName, temp.MeterCode,
                         temp.Time.ToString("yyyy-MM-dd HH:mm:00"), temp.Value, temp.Status));
+                    builder1.Append(string.Format(" values('{0}','{1}','{2}','{3}',{4},'{5}')", temp.BuildId, temp.GatewayName, temp.MeterCode,
+                        temp.Time.ToString("yyyy-MM-dd HH:mm:00"), temp.Value, temp.Status));
                 }
                 else
                 {
                     builder.Append(string.Format(" ,('{0}','{1}','{2}','{3}',{4},'{5}')", temp.BuildId, temp.GatewayName, temp.MeterCode,
                         temp.Time.ToString("yyyy-MM-dd HH:mm:00"), temp.Value, temp.Status));
+                    builder1.Append(string.Format(" ,('{0}','{1}','{2}','{3}',{4},'{5}')", temp.BuildId, temp.GatewayName, temp.MeterCode,
+                         temp.Time.ToString("yyyy-MM-dd HH:mm:00"), temp.Value, temp.Status));
                 }
             }
-
+            int cnt = 0;
             using (MySqlConnection connection = new MySqlConnection(connectString))
             {
                 connection.Open();
@@ -327,13 +333,31 @@ namespace Energy.Common.DAL
                     command.CommandText = builder.ToString();
                     command.Connection = connection;
                     command.CommandType = System.Data.CommandType.Text;
-                    return command.ExecuteNonQuery();
+                    cnt += command.ExecuteNonQuery();
                 }
                 catch (Exception e)
                 {
                     throw e;
                 }
             }
+
+            using (MySqlConnection connection = new MySqlConnection(connectString))
+            {
+                connection.Open();
+                try
+                {
+                    MySqlCommand command = new MySqlCommand(builder1.ToString(), connection);
+                    command.CommandText = builder1.ToString();
+                    command.Connection = connection;
+                    command.CommandType = System.Data.CommandType.Text;
+                    cnt += command.ExecuteNonQuery();
+                }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+            }
+            return cnt;
         }
     }
 }
