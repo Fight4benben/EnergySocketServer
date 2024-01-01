@@ -45,8 +45,8 @@ namespace TCPServerTest
                         "</meters>"+
                         "</data>"+
                         "</root>";
-            string meters = XMLHelper.GetMeterList(xml);
-            Console.WriteLine(meters);
+            //string meters = XMLHelper.GetMeterList(xml);
+            //Console.WriteLine(meters);
         }
     }
 }

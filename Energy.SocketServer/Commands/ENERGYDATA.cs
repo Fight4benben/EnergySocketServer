@@ -26,26 +26,37 @@ namespace Energy.SocketServer.Commands
                 Console.WriteLine("{0} -> 接收到：" + message.GatewayID + "网关发来的建筑" + message.BuildID + "的定时上报的能耗数据，数据时间为：" + message.MessageContent,DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
                 Runtime.m_Logger.Info("{0} -> 接收到：" + message.GatewayID + "网关发来的建筑" + message.BuildID + "的定时上报的能耗数据，数据时间为：" + message.MessageContent, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
                 //保存数据到文件中
-                //string source = XMLHelper.GetMeterList(xmlSource);
+                string source = XMLHelper.GetMeterList(xmlSource,Runtime.MySqlConnectString,"report");
 
-                //bool receiveSuccess = SQLiteHelper.InsertGatewayDataToDB(message,source);
-                bool receiveSuccess = true;
-
-                List<YangZhuChangMeter> meterList = XMLHelper.GetYangZhuChangMeters(xmlSource);
+               // bool receiveSuccess = SQLiteHelper.InsertGatewayDataToDB(message, source);
+                bool receiveSuccess = MySQLHelper.InsertGatewayDataToDB(message,source,Runtime.MySqlConnectString);
 
                 try
                 {
-                    int cnt = MySQLHelper.InsertRealTimeValues(Runtime.MySqlConnectString, meterList);
-                    if (cnt > 0)
-                        receiveSuccess = true;
+                    List<GatewayStatus> gatewayList = new List<GatewayStatus>();
+                    gatewayList.Add(new GatewayStatus() { BuildId= message.BuildID, GatewayId=message.GatewayID, XmlTime=ToolUtil.GetDateTimeFromString(message.MessageContent),Status=1,LastUploadTime = DateTime.Now });
+                    MySQLHelper.InsertGatewayStatusByList(Runtime.MySqlConnectString,gatewayList);
                 }
-                catch (Exception e)
+                catch
                 {
-                    receiveSuccess = false;
-                    Runtime.m_Logger.Error("数据存储出错，" + e.Message);
                 }
-                 
 
+                //保存到养猪场数据库
+                //bool receiveSuccess = true;
+
+                //List<YangZhuChangMeter> meterList = XMLHelper.GetYangZhuChangMeters(xmlSource);
+
+                //try
+                //{
+                //    int cnt = MySQLHelper.InsertRealTimeValues(Runtime.MySqlConnectString, meterList);
+                //    if (cnt > 0)
+                //        receiveSuccess = true;
+                //}
+                //catch (Exception e)
+                //{
+                //    receiveSuccess = false;
+                //    Runtime.m_Logger.Error("数据存储出错，" + e.Message);
+                //}
 
 
                 if (!receiveSuccess)
@@ -58,24 +69,25 @@ namespace Energy.SocketServer.Commands
             else if (message.MessageAttribute == "continuous")
             {
                 Console.WriteLine("{0} -> 接收到：" + message.GatewayID + "网关发来的建筑" + message.BuildID + "的断点续传的能耗数据,数据时间为：" + message.MessageContent, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
-                //string source = XMLHelper.GetMeterList(xmlSource);
+                string source = XMLHelper.GetMeterList(xmlSource,Runtime.MySqlConnectString,"continuous");
                 //bool receiveSuccess = SQLiteHelper.InsertGatewayDataToDB(message, source);
+                bool receiveSuccess = MySQLHelper.InsertGatewayDataToDB(message, source, Runtime.MySqlConnectString);
 
-                bool receiveSuccess = true;
+                //bool receiveSuccess = true;
 
-                List<YangZhuChangMeter> meterList = XMLHelper.GetYangZhuChangMeters(xmlSource);
+                //List<YangZhuChangMeter> meterList = XMLHelper.GetYangZhuChangMeters(xmlSource);
 
-                try
-                {
-                    int cnt = MySQLHelper.InsertRealTimeValues(Runtime.MySqlConnectString, meterList);
-                    if (cnt > 0)
-                        receiveSuccess = true;
-                }
-                catch (Exception e)
-                {
-                    receiveSuccess = false;
-                    Runtime.m_Logger.Error("数据存储出错，" + e.Message);
-                }
+                //try
+                //{
+                //    int cnt = MySQLHelper.InsertRealTimeValues(Runtime.MySqlConnectString, meterList);
+                //    if (cnt > 0)
+                //        receiveSuccess = true;
+                //}
+                //catch (Exception e)
+                //{
+                //    receiveSuccess = false;
+                //    Runtime.m_Logger.Error("数据存储出错，" + e.Message);
+                //}
 
                 if (!receiveSuccess)
                     return;

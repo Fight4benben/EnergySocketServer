@@ -16,6 +16,7 @@ namespace Energy.Common.Utils
         public static DateTime GetDateTimeFromString(string time)
         {
             DateTime dt = DateTime.ParseExact(time,"yyyyMMddHHmmss",System.Globalization.CultureInfo.CurrentCulture);
+             dt = dt.AddSeconds(-dt.Second);
             return dt;
         }
 

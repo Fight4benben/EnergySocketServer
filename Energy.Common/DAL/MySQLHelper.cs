@@ -37,6 +37,176 @@ namespace Energy.Common.DAL
         }
 
         /// <summary>
+        /// 向临时中专表中插入网关上传的数据
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="JsonSource"></param>
+        /// <returns></returns>
+        public static bool InsertGatewayDataToDB(MessageInfo info, string JsonSource, string connectString)
+        {
+            string sql = string.Format(@"insert into gatewaydata(BuildID,GatewayID,CollectTime,DatagramType,Status,JsonData)
+                            values('{0}','{1}','{2}','{3}',{4},'{5}');", info.BuildID, info.GatewayID, ToolUtil.GetDateTimeFromString(info.MessageContent).ToString("yyyy-MM-dd HH:mm:ss"),
+                            info.MessageAttribute, 0, JsonSource);
+
+            using (MySqlConnection connection = new MySqlConnection(connectString))
+            {
+                connection.Open();
+                try
+                {
+                    MySqlCommand command = new MySqlCommand(sql, connection);
+                    command.ExecuteNonQuery();
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static string GetUpdateStatusSQL(SourceDataHeader header)
+        {
+            string sql = string.Format(@"update gatewaydata set Status=1 where BuildID='{0}' and GatewayID = '{1}' 
+                            and CollectTime='{2}' and DatagramType='{3}';", header.BuildID, header.GatewayID,
+                            header.CollectTime, header.DatagramType);
+
+            return sql;
+        }
+
+        public static List<SourceDataHeader> GetUnStoreList(string connectionString)
+        {
+            string sql = @"select BuildID,GatewayID,CollectTime,DatagramType,Status from gatewaydata where Status=0 order by CollectTime ASC limit 0,1000;";
+
+            List<SourceDataHeader> headerList = new List<SourceDataHeader>();
+
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                connection.Open();
+                MySqlCommand command = new MySqlCommand(sql,connection);
+                MySqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    SourceDataHeader header = new SourceDataHeader();
+                    header.BuildID = reader["BuildID"].ToString();
+                    header.GatewayID = reader["GatewayID"].ToString();
+                    header.CollectTime = DateTime.Parse(reader["CollectTime"].ToString()).ToString("yyyy-MM-dd HH:mm:ss");
+                    header.DatagramType = reader["DatagramType"].ToString();
+                    header.Status = Convert.ToInt32(reader["Status"]);
+
+                    headerList.Add(header);
+                }
+            }
+
+            return headerList;
+        }
+
+        //public static List<RentEnergyData> GetRentEnergyDatum()
+        //{
+        //    string sql = @"select F_BuildID BuildID,F_MeterCode MeterCode,F_Day Day,F_StartValue StartValue,F_EndValue EndValue,F_Calced Calced 
+        //            from t_rent_daysatrtendvalue where f_day = {0}";
+        //}
+
+        public static SourceData GetSourceByHeader(SourceDataHeader header,string connectionString)
+        {
+            string sql = "select * from gatewaydata" + string.Format(@" where BuildID='{0}' 
+                                    and GatewayID='{1}' and CollectTime='{2}' 
+                                    and DatagramType='{3}' and Status={4};", header.BuildID, header.GatewayID, header.CollectTime, header.DatagramType, header.Status);
+
+            SourceData sourceData = new SourceData();
+
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                connection.Open();
+                MySqlCommand command = new MySqlCommand(sql, connection);
+                MySqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    //SourceDataHeader header = new SourceDataHeader();
+                    sourceData.BuildID = reader["BuildID"].ToString();
+                    sourceData.GatewayID = reader["GatewayID"].ToString();
+                    sourceData.CollectTime = DateTime.Parse(reader["CollectTime"].ToString()).ToString("yyyy-MM-dd HH:mm:ss");
+                    sourceData.DatagramType = reader["DatagramType"].ToString();
+                    sourceData.Status = Convert.ToInt32(reader["Status"]);
+                    sourceData.JsonData = reader["JsonData"].ToString();
+                }
+            }
+
+            return sourceData;
+        }
+
+        /// <summary>
+        /// 删除已经存储并解析到mysql数据的原始报文数据
+        /// </summary>
+        /// <returns></returns>
+        public static int DeleteStoredGatewayDataFromDB(string connectionString)
+        {
+            string sql = "delete from gatewaydata where Status=1";
+
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                connection.Open();
+                try
+                {
+                    MySqlCommand command = new MySqlCommand(sql, connection);
+                    int result = command.ExecuteNonQuery();
+
+                    return result;
+                }
+                catch
+                {
+                    return -9999;
+                }
+            }
+        }
+
+        public static int DeleteOriginData(string connectionString)
+        {
+            try
+            {
+                string sql = "delete from t_data_originenergyvalue where F_Calced=1 or F_Time<DATE_ADD(NOW(),INTERVAL -5 day)";
+
+                //string sql = "delete from t_ov_origvalue where F_Calced=1 or F_Time<DATE_ADD(NOW(),INTERVAL -10 day)";
+
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+                    try
+                    {
+                        MySqlCommand command = new MySqlCommand(sql, connection);
+                        int result = command.ExecuteNonQuery();
+
+                        return result;
+                    }
+                    catch
+                    {
+                        return -9999;
+                    }
+                }
+            }
+            catch
+            {
+                return -10001;
+            }
+
+        }
+
+        /// <summary>
+        /// 如果解析数据并且插入成功，则将Status标记为1,作为事务使用
+        /// </summary>
+        /// <returns></returns>
+        //public static string GetUpdateStatusSQL(SourceDataHeader header)
+        //{
+        //    string sql = string.Format(@"update gatewaydata set Status=1 where BuildID='{0}' and GatewayID = '{1}' 
+        //                    and CollectTime='{2}' and DatagramType='{3}';", header.BuildID, header.GatewayID,
+        //                    header.CollectTime, header.DatagramType);
+
+        //    return sql;
+        //}
+
+        /// <summary>
         /// 将数据通过事务插入到能源数据表中
         /// </summary>
         /// <param name="connectString">连接字符串</param>
@@ -47,6 +217,7 @@ namespace Energy.Common.DAL
             using (MySqlConnection connection = new MySqlConnection(connectString))
             {
                 connection.Open();
+
                 MySqlTransaction transaction = connection.BeginTransaction();
                 MySqlCommand command = new MySqlCommand();
 
@@ -93,6 +264,7 @@ namespace Energy.Common.DAL
         /// <param name="lists"></param>
         public static List<string> GetInsertSqls(params object[] lists)
         {
+        
             List<string> sqls = new List<string>();
             foreach (var item in lists)
             {
@@ -112,6 +284,105 @@ namespace Energy.Common.DAL
             return sqls;
         }
 
+        public static int InsertGatewayStatusByList(string conn, List<GatewayStatus> list)
+        {
+            if (list.Count == 0)
+                return -1;
+
+            StringBuilder builder = new StringBuilder();
+            builder.Append("replace into t_status_gateway(F_BuildID,F_GatewayID,F_LastUploadTime,F_Status,F_XmlTime) ");
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (i == 0)
+                {
+                    builder.Append(string.Format("values('{0}','{1}','{2}',{3},'{4}')", list[i].BuildId, list[i].GatewayId,
+                        list[i].LastUploadTime.ToString("yyyy-MM-dd HH:mm:ss"), list[i].Status, list[i].XmlTime.ToString("yyyy-MM-dd HH:mm:ss")));
+                }
+                else
+                {
+                    builder.Append(string.Format(",('{0}','{1}','{2}',{3},'{4}')", list[i].BuildId, list[i].GatewayId,
+                        list[i].LastUploadTime.ToString("yyyy-MM-dd HH:mm:ss"), list[i].Status, list[i].XmlTime.ToString("yyyy-MM-dd HH:mm:ss")));
+                }
+            }
+
+            using (MySqlConnection connection = new MySqlConnection(conn))
+            {
+                connection.Open();
+                MySqlCommand command = new MySqlCommand();
+
+                command.Connection = connection;
+                command.CommandTimeout = 0;
+
+                try
+                {
+            
+                    command.CommandText = builder.ToString();
+                    int cnt =command.ExecuteNonQuery();
+
+                    return cnt;
+                  
+                }
+                catch
+                {
+                    return -2;
+                }
+                finally
+                {
+                    connection.Close();
+                }
+            }
+        }
+
+        public static int InsertMeterStatusByList(string conn, List<MeterStatus> list)
+        {
+            if (list.Count == 0)
+                return -1;
+
+            StringBuilder builder = new StringBuilder();
+            builder.Append("replace into t_status_meter(F_BuildID,F_GatewayID,F_MeterCode,F_Status,F_XmlTime,F_LastUploadTime) ");
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (i == 0)
+                {
+                    builder.Append(string.Format("values('{0}','{1}','{2}',{3},'{4}','{5}')", list[i].BuildId, list[i].GatewayId,
+                        list[i].MeterCode, list[i].Status, list[i].XmlTime.ToString("yyyy-MM-dd HH:mm:ss"), list[i].LastUploadTime.ToString("yyyy-MM-dd HH:mm:ss")));
+                }
+                else
+                {
+                    builder.Append(string.Format(" ,('{0}','{1}','{2}',{3},'{4}','{5}')", list[i].BuildId, list[i].GatewayId,
+                        list[i].MeterCode, list[i].Status, list[i].XmlTime.ToString("yyyy-MM-dd HH:mm:ss"), list[i].LastUploadTime.ToString("yyyy-MM-dd HH:mm:ss")));
+                }
+            }
+
+            using (MySqlConnection connection = new MySqlConnection(conn))
+            {
+                connection.Open();
+                MySqlCommand command = new MySqlCommand();
+
+                command.Connection = connection;
+                command.CommandTimeout = 0;
+
+                try
+                {
+
+                    command.CommandText = builder.ToString();
+                    int cnt = command.ExecuteNonQuery();
+
+                    return cnt;
+
+                }
+                catch
+                {
+                    return -2;
+                }
+                finally
+                {
+                    connection.Close();
+                }
+            }
+        }
         private static string GenerateSQLByList(string typeName,object item)
         {
             StringBuilder builder = new StringBuilder();
@@ -122,7 +393,7 @@ namespace Energy.Common.DAL
                     List<Energy.Common.Entity.OriginEnergyData> list = (List<Energy.Common.Entity.OriginEnergyData>)item;
                     if (list.Count > 0)
                     {
-                        builder.Append("insert into t_ov_origvalue ");
+                        builder.Append("insert into t_data_originenergyvalue ");
                         for (int i = 0; i < list.Count; i++)
                         {
                             Energy.Common.Entity.OriginEnergyData originEnergyData = list[i];
@@ -243,9 +514,14 @@ namespace Energy.Common.DAL
         public static List<DateTime> GetUnCalculatedDataTimeList(string connectString)
         {
             List<DateTime> timeList = new List<DateTime>();
-            string sql = @"select F_Time FROM t_ov_origvalue
-                           where F_Calced = 0 group by F_Time 
+            string sql = @"select F_Time FROM t_data_originenergyvalue
+                           where F_Time > DATE_ADD(now(), INTERVAL -5 day)
+                           AND F_Calced = 0 group by F_Time 
                            order by F_Time ASC limit 100; ";
+            //string sql = @"select F_Time FROM t_ov_origvalue
+            //               where F_Time > DATE_ADD(now(), INTERVAL -10 day)
+            //               AND F_Calced = 0 group by F_Time 
+            //               order by F_Time ASC limit 100; ";
 
             using (MySqlConnection connection = new MySqlConnection(connectString))
             {
@@ -268,10 +544,15 @@ namespace Energy.Common.DAL
         {
             List<OriginEnergyData> list = new List<OriginEnergyData>();
 
-            string sql = string.Format(@"select * from t_ov_origvalue
+            string sql = string.Format(@"select * from t_data_originenergyvalue
                                         where F_Time between '{0}' and '{1}'
-                                        and F_Calced = 0",startTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                                        and F_Calced = 0", startTime.ToString("yyyy-MM-dd HH:mm:ss"),
                                         endTime.ToString("yyyy-MM-dd HH:mm:ss"));
+
+            //string sql = string.Format(@"select * from t_ov_origvalue
+            //                            where F_Time between '{0}' and '{1}'
+            //                            and F_Calced = 0", startTime.ToString("yyyy-MM-dd HH:mm:ss"),
+            //                            endTime.ToString("yyyy-MM-dd HH:mm:ss"));
 
             using (MySqlConnection connection = new MySqlConnection(connectString))
             {

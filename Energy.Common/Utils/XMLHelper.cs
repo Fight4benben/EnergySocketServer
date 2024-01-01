@@ -120,7 +120,7 @@ namespace Energy.Common.Utils
         /// </summary>
         /// <param name="xmlSource">xml</param>
         /// <returns></returns>
-        public static string GetMeterList(string xmlSource)
+        public static string GetMeterList(string xmlSource,string mysqlString,string reportType)
         {
             XmlDocument doc = new XmlDocument();
             doc.LoadXml(xmlSource);
@@ -131,6 +131,8 @@ namespace Energy.Common.Utils
             DateTime collectTime = ToolUtil.GetDateTimeFromString(doc.SelectSingleNode("/root/data/time").InnerText);
             bool status = false;
             List<Meter> meterList = new List<Meter>();
+
+            List<MeterStatus> statusList = new List<MeterStatus>();
 
             XmlNodeList nodeList = doc.SelectNodes("/root/data/meters/meter");
 
@@ -144,7 +146,9 @@ namespace Energy.Common.Utils
                 string meterid = item.Attributes["id"].Value;
                 //document.Add("F_BuildId",buildId);
                 //document.Add("F_GatewayId", gatewayId);
-                //document.Add("F_Time",collectTime.ToString("yyyy-MM-dd HH:mm:00"));
+                //document.Add("F_MeterCode", meterid);
+                //document.Add("F_Time",collectTime);
+                
                 XmlNodeList nodeParams = item.SelectNodes("function");
                 bool meterStatus = true;
                 foreach (XmlNode paramNode in nodeParams)
@@ -167,11 +171,29 @@ namespace Energy.Common.Utils
                 }
                 //bsonList.Add(document);
                 meterList.Add(new Meter(meterStatus,meterid,paramList));
+
+                if (reportType == "report" && nodeParams.Count > 0)
+                {
+                    if(string.IsNullOrEmpty(nodeParams[0].Attributes["error"].Value.Trim()))
+                        statusList.Add(new MeterStatus() { BuildId = buildId, GatewayId = gatewayId, MeterCode = meterid, Status=1, XmlTime = collectTime, LastUploadTime = DateTime.Now });
+                    else
+                        statusList.Add(new MeterStatus() { BuildId = buildId, GatewayId = gatewayId, MeterCode = meterid, Status=0, XmlTime = collectTime, LastUploadTime = DateTime.Now });
+                }
+                    
             }
-   
-            //MongoHelper helper = MongoHelper.GetInstance();
-            //var collection = helper.GetCollection("HistoryData");
-            //collection.InsertMany(bsonList); 
+
+            //try
+            //{
+            //    MongoHelper helper = MongoHelper.GetInstance();
+            //    var collection = helper.GetCollection("HistoryData");
+            //   collection.InsertMany(bsonList);
+            //}
+            //catch 
+            //{ 
+            //}
+            if(reportType == "report")
+                MySQLHelper.InsertMeterStatusByList(mysqlString,statusList);
+            
 
             return JsonConvert.SerializeObject(new MeterList(buildId, gatewayId, collectTime, status, meterList)).ToString();
         }

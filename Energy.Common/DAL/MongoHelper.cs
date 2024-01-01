@@ -48,6 +48,8 @@ namespace Energy.Common.DAL
             return uniqueInstance;
         }
 
+      
+
         /// <summary>
         /// 获取数据集
         /// </summary>
@@ -55,7 +57,9 @@ namespace Energy.Common.DAL
         /// <returns></returns>
         public IMongoCollection<BsonDocument> GetCollection(string collectionName)
         {
+           
             return m_MongoDatabase.GetCollection<BsonDocument>(collectionName);
+            
         }
 
 
@@ -66,7 +70,32 @@ namespace Energy.Common.DAL
         /// <param name="newDocument"></param>
         public void InsertOne(IMongoCollection<BsonDocument> collection, BsonDocument newDocument)
         {
+            
             collection.InsertOne(newDocument);
+        }
+
+        public void CreateIndexes(IMongoCollection<BsonDocument> collection,string name)
+        {
+            var indexes =collection.Indexes.List().ToList();
+
+            bool flag = false;
+            
+            foreach (var item in indexes)
+            {
+                var tempList = item.ToList();
+                foreach (var element in tempList)
+                {
+                    if (element.Name == name)
+                        flag = true;
+                }
+            }
+
+            if (!flag)
+            {
+                var indexOptions = new CreateIndexOptions();
+                //var indexModel = new CreateIndexModel(,);
+            }
+          
         }
 
         /// <summary>

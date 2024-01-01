@@ -13,11 +13,10 @@ namespace Energy.SocketServer
 {
     public class Runtime
     {
-        public static string MySqlConnectString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};",
+        public static string MySqlConnectString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};SslMode=None;",
             SettingsHelper.GetSettingValue("MySqlServer"), SettingsHelper.GetSettingValue("MySqlPort"),
             SettingsHelper.GetSettingValue("DatabaseNameDB"), SettingsHelper.GetSettingValue("MySqlUid"),
             SettingsHelper.GetSettingValue("MySqlPwd"));
-
 
         public static Dictionary<string, string> m_GateWayInfo = new Dictionary<string, string>();
         public static string m_AESValue = "1234567890123456";

@@ -11,10 +11,13 @@ namespace Energy.Analysis
 {
     public class Runtime
     {
-        public static string MySqlConnectString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};",
+        public static string MySqlConnectString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};SslMode=None;",
             SettingsHelper.GetSettingValue("MySqlServer"),SettingsHelper.GetSettingValue("MySqlPort"),
             SettingsHelper.GetSettingValue("DatabaseNameDB"),SettingsHelper.GetSettingValue("MySqlUid"),
             SettingsHelper.GetSettingValue("MySqlPwd"));
+
+
+        public static string MysqlConn { get; set; }
 
         public static Logger m_Logger = LogManager.GetLogger("Analysis");
         /// <summary>
@@ -84,7 +87,7 @@ namespace Energy.Analysis
 
         public static string GenerateOrigStateSQL(DateTime time)
         {
-            return string.Format("UPDATE t_ov_origvalue SET F_Calced=1 WHERE F_Time='{0}'",time.ToString("yyyy-MM-dd HH:mm:ss"));
+            return string.Format("UPDATE t_data_originenergyvalue SET F_Calced=1 WHERE F_Time='{0}'", time.ToString("yyyy-MM-dd HH:mm:ss"));
         }
     }
 }

@@ -25,14 +25,15 @@ namespace Energy.Analysis
                 GetCurrentData(meters),GetPowerData(meters),GetBaseElecData(meters));
 
             int count = 0;
-            MySqlConnection connection = new MySqlConnection(Runtime.MySqlConnectString);
-            SQLiteConnection sqliteConnection = new SQLiteConnection("Data Source=TempData;Version=3;");
-            SQLiteCommand sQLiteCommand = new SQLiteCommand(SQLiteHelper.GetUpdateStatusSQL(header),sqliteConnection);
+            MySqlConnection connection = new MySqlConnection(Runtime.MysqlConn);
+            //SQLiteConnection sqliteConnection = new SQLiteConnection("Data Source=TempData;Version=3;");
+            //SQLiteCommand sQLiteCommand = new SQLiteCommand(SQLiteHelper.GetUpdateStatusSQL(header),sqliteConnection);
+            MySqlCommand updateCommand = new MySqlCommand(MySQLHelper.GetUpdateStatusSQL(header),connection);
 
             connection.Open();
-            sqliteConnection.Open();
+            //sqliteConnection.Open();
 
-            SQLiteTransaction sqliteTrans = sqliteConnection.BeginTransaction();
+            //SQLiteTransaction sqliteTrans = sqliteConnection.BeginTransaction();
             MySqlTransaction mySqlTrans = connection.BeginTransaction();
             try
             {
@@ -42,23 +43,32 @@ namespace Energy.Analysis
 
                     count += mySqlCommand.ExecuteNonQuery();
                 }
-                count += sQLiteCommand.ExecuteNonQuery();
+                count += updateCommand.ExecuteNonQuery();
 
-                sqliteTrans.Commit();
+                //sqliteTrans.Commit();
                 mySqlTrans.Commit();
 
                 Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "<" + Thread.CurrentThread.ManagedThreadId.ToString() + "> -> " + "事务执行成功，共影响{0}条数据。",count);
             }
             catch (Exception e)
             {
+                Runtime.m_Logger.Error(e,e.Message); 
                 Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "<" + Thread.CurrentThread.ManagedThreadId.ToString() + "> -> " + "事务执行失败，正在回滚操作，失败内容为：{0}。",e.Message);
-                sqliteTrans.Rollback();
+                //sqliteTrans.Rollback();
                 mySqlTrans.Rollback();
+
+                if (connection.State == System.Data.ConnectionState.Open)
+                {
+                    updateCommand.ExecuteNonQuery();
+                    mySqlTrans.Commit();
+                }
+
                 Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "<" + Thread.CurrentThread.ManagedThreadId.ToString() + "> -> " + "事务回滚成功！");
             }
             finally
-            { 
-                sQLiteCommand.Connection.Close();
+            {
+                
+                //sQLiteCommand.Connection.Close();
                 connection.Close();
                 Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "<" + Thread.CurrentThread.ManagedThreadId.ToString() + "> -> " + "已关闭数据库连接！");
             }
@@ -73,8 +83,8 @@ namespace Energy.Analysis
             List<OriginEnergyData> energyDataList = new List<OriginEnergyData>();
             foreach (var item in data.Meters)
             {
-                MeterParam param = item.MeterParams.Find(meterParam => meterParam.ParamName.ToLower() == "EPI".ToLower() || meterParam.ParamName == "LJLL".ToLower()
-                                                || meterParam.ParamName.ToLower() == "LLHeat".ToLower());
+                MeterParam param = item.MeterParams.Find(meterParam => meterParam.ParamName.ToLower() == "EPI".ToLower() || meterParam.ParamName.ToLower() == "LJLL".ToLower()
+                                                || meterParam.ParamName.ToLower() == "LLHeat".ToLower()||meterParam.ParamName == "01");
 
                 if (param == null)
                     continue;
@@ -139,7 +149,8 @@ namespace Energy.Analysis
                 if (uca != null)
                     voltage.Uca = uca.ParamValue;
 
-                voltageDataList.Add(voltage);
+                if(u != null || ua != null || ub != null || uc != null || uab != null || ubc != null || uca != null)
+                    voltageDataList.Add(voltage);
             }
 
             return voltageDataList;
@@ -178,7 +189,8 @@ namespace Energy.Analysis
                 if (ic != null)
                     current.Ic = ic.ParamValue;
 
-                currentDataList.Add(current);
+                if(i != null || ia != null || ib != null || ic != null)
+                     currentDataList.Add(current);
             }
 
             return currentDataList;
@@ -242,7 +254,10 @@ namespace Energy.Analysis
                 if (sc != null)
                     power.Sc = sc.ParamValue;
 
-                powerDataList.Add(power);
+                if(p != null || pa != null || pb != null || pc != null ||
+                    qa != null || qb != null ||qc != null || q != null ||
+                    s != null || sa != null || sb != null || sc != null)
+                    powerDataList.Add(power);
             }
 
             return powerDataList;
@@ -273,7 +288,8 @@ namespace Energy.Analysis
                 if (fr != null)
                     baseElec.Fr = fr.ParamValue;
 
-                baseElecDataList.Add(baseElec);
+                if(pf != null || fr != null)
+                    baseElecDataList.Add(baseElec);
             }
 
             return baseElecDataList;

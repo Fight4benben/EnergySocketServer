@@ -15,11 +15,17 @@ namespace Energy.SocketServer
     {
         static void Main(string[] args)
         {
+            //MongoHelper helper = MongoHelper.GetInstance();
+            //var collection = helper.GetCollection("HistoryData");
+            //helper.CreateIndexes(collection,"defaultIndex");
             Console.WriteLine("{0} -> Check TempData DB status ...", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+            Runtime.m_Logger.Info(string.Format("{0} -> Check TempData DB status ...", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
             SQLiteHelper.CreateLocalDB("TempData");
             Console.WriteLine("{0} -> Check GatewayData Table In TempData...", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+            Runtime.m_Logger.Info(string.Format("{0} -> Check GatewayData Table In TempData...", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
             SQLiteHelper.CreateTempDataTable("TempData");
             Console.WriteLine("{0} -> Finish TempData DB and GatewayData Table Checked.", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+            Runtime.m_Logger.Info(string.Format("{0} -> Finish TempData DB and GatewayData Table Checked.", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
 
             //Console.WriteLine("{0} -> Press any key to start the server!", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
 
@@ -39,6 +45,8 @@ namespace Energy.SocketServer
             var result = bootstrap.Start();
 
             Console.WriteLine("{1} -> Start result: {0}!", result, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+            Runtime.m_Logger.Info(string.Format("{1} -> Start result: {0}!", result, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
+
 
             if (result == StartResult.Failed)
             {
