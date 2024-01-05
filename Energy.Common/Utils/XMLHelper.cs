@@ -8,6 +8,7 @@ using System.Xml.Linq;
 using Energy.Common.Entity;
 using MongoDB.Bson;
 using Energy.Common.DAL;
+using MongoDB.Driver;
 
 namespace Energy.Common.Utils
 {
@@ -136,19 +137,19 @@ namespace Energy.Common.Utils
 
             XmlNodeList nodeList = doc.SelectNodes("/root/data/meters/meter");
 
-            //List<BsonDocument> bsonList = new List<BsonDocument>();
+            List<BsonDocument> bsonList = new List<BsonDocument>();
 
             foreach (XmlNode item in nodeList)
             {
-                //BsonDocument document = new BsonDocument();
+                BsonDocument document = new BsonDocument();
 
                 List<MeterParam> paramList = new List<MeterParam>();
                 string meterid = item.Attributes["id"].Value;
-                //document.Add("F_BuildId",buildId);
-                //document.Add("F_GatewayId", gatewayId);
-                //document.Add("F_MeterCode", meterid);
-                //document.Add("F_Time",collectTime);
                 
+                document.Add("timestamp", collectTime.ToUniversalTime().AddHours(8));
+                document.Add("BuildId", buildId);
+                document.Add("MeterCode", meterid);
+
                 XmlNodeList nodeParams = item.SelectNodes("function");
                 bool meterStatus = true;
                 foreach (XmlNode paramNode in nodeParams)
@@ -160,8 +161,9 @@ namespace Energy.Common.Utils
                     if (paramNode.InnerText != "")
                     {
                         paramValue = Convert.ToSingle(paramNode.InnerText);
-                        //document.Add(paramName,paramValue);
                         paramList.Add(new MeterParam(paramName, paramError, paramValue));
+
+                        document.Add(paramName, paramValue);
                     }
                     else
                     {
@@ -169,7 +171,7 @@ namespace Energy.Common.Utils
                     }
 
                 }
-                //bsonList.Add(document);
+                bsonList.Add(document);
                 meterList.Add(new Meter(meterStatus,meterid,paramList));
 
                 if (reportType == "report" && nodeParams.Count > 0)
@@ -182,16 +184,19 @@ namespace Energy.Common.Utils
                     
             }
 
-            //try
-            //{
-            //    MongoHelper helper = MongoHelper.GetInstance();
-            //    var collection = helper.GetCollection("HistoryData");
-            //   collection.InsertMany(bsonList);
-            //}
-            //catch 
-            //{ 
-            //}
-            if(reportType == "report")
+            try
+            {
+                MongoHelper helper = MongoHelper.GetInstance();
+                var collection = helper.GetCollection("historyData");
+                collection.InsertMany(bsonList);
+            }
+            catch(Exception er)
+            {
+                Console.WriteLine(er.Message);
+                
+            }
+
+            if (reportType == "report")
                 MySQLHelper.InsertMeterStatusByList(mysqlString,statusList);
             
 

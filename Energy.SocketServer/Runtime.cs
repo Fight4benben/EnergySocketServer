@@ -13,10 +13,7 @@ namespace Energy.SocketServer
 {
     public class Runtime
     {
-        public static string MySqlConnectString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};SslMode=None;",
-            SettingsHelper.GetSettingValue("MySqlServer"), SettingsHelper.GetSettingValue("MySqlPort"),
-            SettingsHelper.GetSettingValue("DatabaseNameDB"), SettingsHelper.GetSettingValue("MySqlUid"),
-            SettingsHelper.GetSettingValue("MySqlPwd"));
+        public static string MySqlConnectString = "";
 
         public static Dictionary<string, string> m_GateWayInfo = new Dictionary<string, string>();
         public static string m_AESValue = "1234567890123456";
@@ -24,6 +21,11 @@ namespace Energy.SocketServer
         public static Logger m_Logger = LogManager.GetLogger("SocketServer");
 
         public static IBootstrap m_Bootstrap;
+
+        /// <summary>
+        /// 是否存入原始文件进入数据库，true表示存入数据库，false表示存入文件目录
+        /// </summary>
+        public static bool SaveToDataBase = false;
 
     }
 }

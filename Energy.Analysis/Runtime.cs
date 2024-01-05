@@ -11,10 +11,10 @@ namespace Energy.Analysis
 {
     public class Runtime
     {
-        public static string MySqlConnectString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};SslMode=None;",
-            SettingsHelper.GetSettingValue("MySqlServer"),SettingsHelper.GetSettingValue("MySqlPort"),
-            SettingsHelper.GetSettingValue("DatabaseNameDB"),SettingsHelper.GetSettingValue("MySqlUid"),
-            SettingsHelper.GetSettingValue("MySqlPwd"));
+        //public static string MySqlConnectString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};SslMode=None;",
+        //    SettingsHelper.GetSettingValue("MySqlServer"),SettingsHelper.GetSettingValue("MySqlPort"),
+        //    SettingsHelper.GetSettingValue("DatabaseNameDB"),SettingsHelper.GetSettingValue("MySqlUid"),
+        //    SettingsHelper.GetSettingValue("MySqlPwd"));
 
 
         public static string MysqlConn { get; set; }

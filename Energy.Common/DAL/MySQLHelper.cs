@@ -184,6 +184,8 @@ namespace Energy.Common.DAL
                     {
                         return -9999;
                     }
+
+                    connection.Close();
                 }
             }
             catch
@@ -219,10 +221,7 @@ namespace Energy.Common.DAL
                 connection.Open();
 
                 MySqlTransaction transaction = connection.BeginTransaction();
-                MySqlCommand command = new MySqlCommand();
-
-                command.Connection = connection;
-                command.CommandTimeout = 0;
+                MySqlCommand command = connection.CreateCommand();
                 command.Transaction = transaction;
                 
                 try
@@ -256,6 +255,7 @@ namespace Energy.Common.DAL
                 }
             }
         }
+
 
         /// <summary>
         /// 执行事务
@@ -535,6 +535,8 @@ namespace Energy.Common.DAL
                 {
                     timeList.Add(Convert.ToDateTime(reader["F_Time"].ToString()));
                 }
+
+                connection.Close();
             } 
 
             return timeList;
@@ -572,6 +574,7 @@ namespace Energy.Common.DAL
                     originEnergyData.Calced = Convert.ToInt32(reader["F_Calced"])==0?false:true;
                     list.Add(originEnergyData);
                 }
+                connection.Close();
             }
 
             return list;

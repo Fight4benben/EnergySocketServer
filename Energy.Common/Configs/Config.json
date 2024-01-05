@@ -1,0 +1,9 @@
+{
+  "MySqlServer": "127.0.0.1",
+  "MySqlPort": 3306,
+  "DatabaseNameDB": "energydb",
+  "MySqlUid": "root",
+  "MySqlPwd": "123456",
+  "MongoString": "mongodb://joyenergy.e3.luyouxia.net:12294",
+  "SaveReport2File": true
+}

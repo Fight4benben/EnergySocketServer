@@ -22,14 +22,23 @@ namespace Energy.Common.DAL
 
         private MongoHelper()
         {
-            string conn = SettingsHelper.GetSettingValue("MongoString");
+            string conn = "";
+            try
+            {
+                conn = SettingsHelper.GetSettingValue("MongoString");
+            }
+            catch
+            {
+                conn = "mongodb://joyenergy.e3.luyouxia.net:12294";
+            }
+                
             if (string.IsNullOrEmpty(conn) || conn == "")
             {
                 conn = "mongodb://127.0.0.1:27017";
             }
             m_MongoClient = new MongoClient(conn);
 
-            m_MongoDatabase = m_MongoClient.GetDatabase("History");
+            m_MongoDatabase = m_MongoClient.GetDatabase("history");
         }
 
         public static MongoHelper GetInstance()

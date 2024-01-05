@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Energy.Common.DAL;
 using Energy.SocketServer.Protocol;
 using System.Threading;
+using Energy.Common.Utils;
+using Energy.Common.Settings;
 
 namespace Energy.SocketServer
 {
@@ -15,29 +17,21 @@ namespace Energy.SocketServer
     {
         static void Main(string[] args)
         {
-            //MongoHelper helper = MongoHelper.GetInstance();
-            //var collection = helper.GetCollection("HistoryData");
-            //helper.CreateIndexes(collection,"defaultIndex");
-            Console.WriteLine("{0} -> Check TempData DB status ...", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
-            Runtime.m_Logger.Info(string.Format("{0} -> Check TempData DB status ...", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
-            SQLiteHelper.CreateLocalDB("TempData");
-            Console.WriteLine("{0} -> Check GatewayData Table In TempData...", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
-            Runtime.m_Logger.Info(string.Format("{0} -> Check GatewayData Table In TempData...", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
-            SQLiteHelper.CreateTempDataTable("TempData");
-            Console.WriteLine("{0} -> Finish TempData DB and GatewayData Table Checked.", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
-            Runtime.m_Logger.Info(string.Format("{0} -> Finish TempData DB and GatewayData Table Checked.", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
+            Console.WriteLine("===========================启动数据接收服务=======================================");
+            Runtime.m_Logger.Info("===========================启动数据接收服务=======================================");
+            FileHelper.CheckDirExistAndCreate(FileHelper.RealTimeDataPath);
 
-            //Console.WriteLine("{0} -> Press any key to start the server!", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
-
-            //Console.ReadKey();
-            //Console.WriteLine();
+            Runtime.MySqlConnectString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};SslMode=None;",
+            JsonConfigHelper.Instance.GetValue("MySqlServer"), JsonConfigHelper.Instance.GetValue("MySqlPort"),
+            JsonConfigHelper.Instance.GetValue("DatabaseNameDB"), JsonConfigHelper.Instance.GetValue("MySqlUid"),
+            JsonConfigHelper.Instance.GetValue("MySqlPwd"));
 
             var bootstrap = BootstrapFactory.CreateBootstrap();
-           
 
             if (!bootstrap.Initialize())
             {
                 Console.WriteLine("{0} -> Failed to initialize!", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+                Runtime.m_Logger.Error("初始化数据接受服务失败！");
                 Console.ReadKey();
                 return;
             }
@@ -55,28 +49,13 @@ namespace Energy.SocketServer
                 return;
             }
 
-
+            Console.WriteLine("===========================启动数据接收服务成功=======================================");
+            Runtime.m_Logger.Info("===========================启动数据接收服务成功=======================================");
 
             while (true)
             {
                 Thread.Sleep(1);
             }
-            //Console.WriteLine("Press key 'q' to stop it!");
-
-            //while (Console.ReadKey().KeyChar != 'q')
-            //{
-            //    Console.WriteLine();
-            //    continue;
-            //}
-
-            //Console.WriteLine();
-
-
-            //Stop the appServer
-            //bootstrap.Stop();
-
-            //Console.WriteLine("{0} -> The server was stopped!", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
-            //Console.ReadKey();
 
         }
     }

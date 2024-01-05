@@ -20,15 +20,15 @@ namespace Energy.Analysis
         /// <param name="header"></param>
         public static void ExecuteInsertTransactions(MeterList meters,SourceDataHeader header)
         {
-            
-            List<string> insertSqls = Energy.Common.DAL.MySQLHelper.GetInsertSqls(GetEnergyData(meters),GetVoltageData(meters),
-                GetCurrentData(meters),GetPowerData(meters),GetBaseElecData(meters));
+            // 先移除不使用,GetVoltageData(meters),GetCurrentData(meters),GetPowerData(meters),GetBaseElecData(meters)
+            object[] list = new object[]{ GetEnergyData(meters) };
+            List<string> insertSqls = Energy.Common.DAL.MySQLHelper.GetInsertSqls(list);
 
             int count = 0;
             MySqlConnection connection = new MySqlConnection(Runtime.MysqlConn);
             //SQLiteConnection sqliteConnection = new SQLiteConnection("Data Source=TempData;Version=3;");
             //SQLiteCommand sQLiteCommand = new SQLiteCommand(SQLiteHelper.GetUpdateStatusSQL(header),sqliteConnection);
-            MySqlCommand updateCommand = new MySqlCommand(MySQLHelper.GetUpdateStatusSQL(header),connection);
+            // MySqlCommand updateCommand = new MySqlCommand(MySQLHelper.GetUpdateStatusSQL(header),connection);
 
             connection.Open();
             //sqliteConnection.Open();
@@ -43,7 +43,7 @@ namespace Energy.Analysis
 
                     count += mySqlCommand.ExecuteNonQuery();
                 }
-                count += updateCommand.ExecuteNonQuery();
+                // count += updateCommand.ExecuteNonQuery();
 
                 //sqliteTrans.Commit();
                 mySqlTrans.Commit();
@@ -59,7 +59,7 @@ namespace Energy.Analysis
 
                 if (connection.State == System.Data.ConnectionState.Open)
                 {
-                    updateCommand.ExecuteNonQuery();
+                    // updateCommand.ExecuteNonQuery();
                     mySqlTrans.Commit();
                 }
 

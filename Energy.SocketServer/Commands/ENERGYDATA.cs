@@ -28,8 +28,12 @@ namespace Energy.SocketServer.Commands
                 //保存数据到文件中
                 string source = XMLHelper.GetMeterList(xmlSource,Runtime.MySqlConnectString,"report");
 
-               // bool receiveSuccess = SQLiteHelper.InsertGatewayDataToDB(message, source);
-                bool receiveSuccess = MySQLHelper.InsertGatewayDataToDB(message,source,Runtime.MySqlConnectString);
+                //bool receiveSuccess = MySQLHelper.InsertGatewayDataToDB(message,source,Runtime.MySqlConnectString);
+                bool receiveSuccess = FileHelper.SaveJsonData2File($"{message.BuildID}_{message.GatewayID}_{message.MessageContent}_{message.MessageAttribute}_{DateTime.Now.ToString("HHmmssfff")}.json", source, out string msg);
+                if (receiveSuccess)
+                    Runtime.m_Logger.Info(msg);
+                else
+                    Runtime.m_Logger.Error(msg);
 
                 try
                 {
