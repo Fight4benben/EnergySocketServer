@@ -45,5 +45,6 @@ namespace Energy.Common.Settings
             else
                 return val.ToString();
         }
+
     }
 }

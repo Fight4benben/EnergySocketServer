@@ -172,6 +172,7 @@
     <Compile Include="DAL\MongoHelper.cs" />
     <Compile Include="DAL\MySQLHelper.cs" />
     <Compile Include="DAL\SQLiteHelper.cs" />
+    <Compile Include="DAL\SQLServerHelper.cs" />
     <Compile Include="Entity\BaseElecData.cs" />
     <Compile Include="Entity\CalcEnergyData.cs" />
     <Compile Include="Entity\CurrentData.cs" />

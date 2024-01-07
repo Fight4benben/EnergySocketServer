@@ -121,7 +121,7 @@ namespace Energy.Common.Utils
         /// </summary>
         /// <param name="xmlSource">xml</param>
         /// <returns></returns>
-        public static string GetMeterList(string xmlSource,string mysqlString,string reportType)
+        public static string GetMeterList(string xmlSource,string mysqlString,string reportType, bool save2Mongodb = false)
         {
             XmlDocument doc = new XmlDocument();
             doc.LoadXml(xmlSource);
@@ -184,17 +184,23 @@ namespace Energy.Common.Utils
                     
             }
 
-            try
+            if (save2Mongodb)
             {
-                MongoHelper helper = MongoHelper.GetInstance();
-                var collection = helper.GetCollection("historyData");
-                collection.InsertMany(bsonList);
+                try
+                {
+                    MongoHelper helper = MongoHelper.GetInstance();
+                    var collection = helper.GetCollection("historyData");
+                    collection.InsertMany(bsonList);
+                }
+                catch (Exception er)
+                {
+                    Console.WriteLine(er.Message);
+
+                }
             }
-            catch(Exception er)
-            {
-                Console.WriteLine(er.Message);
-                
-            }
+
+            bsonList.Clear();
+            
 
             if (reportType == "report")
                 MySQLHelper.InsertMeterStatusByList(mysqlString,statusList);

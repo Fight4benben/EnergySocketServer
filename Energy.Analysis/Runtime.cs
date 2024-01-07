@@ -19,6 +19,14 @@ namespace Energy.Analysis
 
         public static string MysqlConn { get; set; }
 
+        public static bool SaveData2Mysql { get; set; }
+
+        public static bool SaveData2SQLServer { get; set; }
+
+        public static string SQLEnergyConnectString { get; set; }
+
+        public static string SQLHistoryConnectString { get; set; }
+
         public static Logger m_Logger = LogManager.GetLogger("Analysis");
         /// <summary>
         /// 生成5分钟表的插入代码

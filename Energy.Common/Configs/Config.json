@@ -5,5 +5,10 @@
   "MySqlUid": "root",
   "MySqlPwd": "123456",
   "MongoString": "mongodb://joyenergy.e3.luyouxia.net:12294",
-  "SaveReport2File": true
+  "SaveReport2File": true,
+  "SaveToMongodb": false,//是否将所有参数保存到Mongodb中
+  "SaveData2Mysql": false, //使用启用Mysql数据库
+  "SaveData2SQLServer": true, //是否启用SQL Server数据库，启用SQL Server数据库，则数据
+  "SQLEnergyConnectString": "data source=127.0.0.1,1433;initial catalog=EMS;persist security info=True;user id=sa;password=123456;MultipleActiveResultSets=True;",
+  "SQLHistoryConnectString": "data source=127.0.0.1,1433;initial catalog=EMSHistory;persist security info=True;user id=sa;password=123456;MultipleActiveResultSets=True;"
 }

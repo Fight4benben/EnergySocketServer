@@ -27,5 +27,7 @@ namespace Energy.SocketServer
         /// </summary>
         public static bool SaveToDataBase = false;
 
+        public static bool SaveToMongodb = true;
+
     }
 }

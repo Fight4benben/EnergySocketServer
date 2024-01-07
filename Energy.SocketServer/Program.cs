@@ -21,6 +21,9 @@ namespace Energy.SocketServer
             Runtime.m_Logger.Info("===========================启动数据接收服务=======================================");
             FileHelper.CheckDirExistAndCreate(FileHelper.RealTimeDataPath);
 
+            Runtime.SaveToMongodb = Convert.ToBoolean(JsonConfigHelper.Instance.GetValue("SaveToMongodb"));
+            
+
             Runtime.MySqlConnectString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};SslMode=None;",
             JsonConfigHelper.Instance.GetValue("MySqlServer"), JsonConfigHelper.Instance.GetValue("MySqlPort"),
             JsonConfigHelper.Instance.GetValue("DatabaseNameDB"), JsonConfigHelper.Instance.GetValue("MySqlUid"),

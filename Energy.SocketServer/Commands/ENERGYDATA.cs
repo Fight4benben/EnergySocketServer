@@ -26,7 +26,7 @@ namespace Energy.SocketServer.Commands
                 Console.WriteLine("{0} -> 接收到：" + message.GatewayID + "网关发来的建筑" + message.BuildID + "的定时上报的能耗数据，数据时间为：" + message.MessageContent,DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
                 Runtime.m_Logger.Info("{0} -> 接收到：" + message.GatewayID + "网关发来的建筑" + message.BuildID + "的定时上报的能耗数据，数据时间为：" + message.MessageContent, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
                 //保存数据到文件中
-                string source = XMLHelper.GetMeterList(xmlSource,Runtime.MySqlConnectString,"report");
+                string source = XMLHelper.GetMeterList(xmlSource,Runtime.MySqlConnectString,"report", Runtime.SaveToMongodb);
 
                 //bool receiveSuccess = MySQLHelper.InsertGatewayDataToDB(message,source,Runtime.MySqlConnectString);
                 bool receiveSuccess = FileHelper.SaveJsonData2File($"{message.BuildID}_{message.GatewayID}_{message.MessageContent}_{message.MessageAttribute}_{DateTime.Now.ToString("HHmmssfff")}.json", source, out string msg);
@@ -73,9 +73,13 @@ namespace Energy.SocketServer.Commands
             else if (message.MessageAttribute == "continuous")
             {
                 Console.WriteLine("{0} -> 接收到：" + message.GatewayID + "网关发来的建筑" + message.BuildID + "的断点续传的能耗数据,数据时间为：" + message.MessageContent, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
-                string source = XMLHelper.GetMeterList(xmlSource,Runtime.MySqlConnectString,"continuous");
+                string source = XMLHelper.GetMeterList(xmlSource,Runtime.MySqlConnectString,"continuous", Runtime.SaveToMongodb);
                 //bool receiveSuccess = SQLiteHelper.InsertGatewayDataToDB(message, source);
-                bool receiveSuccess = MySQLHelper.InsertGatewayDataToDB(message, source, Runtime.MySqlConnectString);
+                bool receiveSuccess = FileHelper.SaveJsonData2File($"{message.BuildID}_{message.GatewayID}_{message.MessageContent}_{message.MessageAttribute}_{DateTime.Now.ToString("HHmmssfff")}.json", source, out string msg);
+                if (receiveSuccess)
+                    Runtime.m_Logger.Info(msg);
+                else
+                    Runtime.m_Logger.Error(msg);
 
                 //bool receiveSuccess = true;
 

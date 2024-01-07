@@ -61,19 +61,42 @@ namespace Energy.Analysis
             JsonConfigHelper.Instance.GetValue("DatabaseNameDB"), JsonConfigHelper.Instance.GetValue("MySqlUid"),
             JsonConfigHelper.Instance.GetValue("MySqlPwd"));
 
-            Thread transThread = new Thread(SaveDataToMysql);
-            Thread calcThread = new Thread(CalculateEnergyData);
-            Thread deleteThread = new Thread(DeleteProcessedData);
+            Runtime.SaveData2Mysql = Convert.ToBoolean(JsonConfigHelper.Instance.GetValue("SaveData2Mysql"));
+            Runtime.SaveData2SQLServer = Convert.ToBoolean(JsonConfigHelper.Instance.GetValue("SaveData2SQLServer"));
 
-            transThread.Start();
-            ShowLog("已启动转发线程");
-            Runtime.m_Logger.Info("已启动转发线程");
-            calcThread.Start();
-            ShowLog("已启动计算线程");
-            Runtime.m_Logger.Info("已启动计算线程");
-            deleteThread.Start();
-            ShowLog("已启动清除线程");
-            Runtime.m_Logger.Info("已启动清除线程");
+            Runtime.SQLEnergyConnectString = JsonConfigHelper.Instance.GetValue("SQLEnergyConnectString");
+            Runtime.SQLHistoryConnectString = JsonConfigHelper.Instance.GetValue("SQLHistoryConnectString");
+
+            if (Runtime.SaveData2Mysql)
+            {
+                Thread transThread = new Thread(SaveDataToMysql);
+                Thread calcThread = new Thread(CalculateEnergyData);
+                Thread deleteThread = new Thread(DeleteProcessedData);
+
+                transThread.Start();
+                ShowLog("已启动转发线程");
+                Runtime.m_Logger.Info("已启动转发线程");
+                calcThread.Start();
+                ShowLog("已启动计算线程");
+                Runtime.m_Logger.Info("已启动计算线程");
+                deleteThread.Start();
+                ShowLog("已启动清除线程");
+                Runtime.m_Logger.Info("已启动清除线程");
+            }
+
+            if (Runtime.SaveData2SQLServer)
+            {
+                Thread saveThread = new Thread(TransDataFromFile2SQLServer);
+
+                Thread calcSqlThread = new Thread(ExecuteCalcForSQLServer);
+
+                saveThread.Start();
+                ShowLog("已启动存储SQL Server的线程");
+
+                calcSqlThread.Start();
+                ShowLog("已启动SQL Server计算任务线程");
+            }
+            
 
             ShowLog("===========================数据计算服务启动完成=======================================");
             Runtime.m_Logger.Info("===========================数据计算服务启动完成=======================================");
@@ -167,7 +190,7 @@ namespace Energy.Analysis
             Runtime.m_Logger.Info("完成当前周期文件的存储。");
         }
 
-        private static void SaveDataFromFileSystem()
+        private static void SaveDataFromFileSystem(bool save2Mysql = true)
         {
             List<string> files = FileHelper.GetFileOrder();
 
@@ -191,7 +214,12 @@ namespace Energy.Analysis
 
                 try
                 {
-                    SaveDataFromSqliteToMySql.ExecuteInsertTransactions(list, null);
+                    if (save2Mysql)
+                        SaveDataFromSqliteToMySql.ExecuteInsertTransactions(list, null);
+                    else
+                        SQLServerHelper.SaveData2SqlServer(Runtime.SQLEnergyConnectString, Runtime.SQLHistoryConnectString, list);
+                    
+
                 }
                 catch (Exception e)
                 {
@@ -350,6 +378,61 @@ namespace Energy.Analysis
         private static void ShowLog(string text,params string[] values)
         {
             Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")+"<"+Thread.CurrentThread.ManagedThreadId.ToString()+"> -> "+text,values);
+        }
+
+        private static void TransDataFromFile2SQLServer()
+        {
+            ShowLog("数据转存线程启动，线程ID：{0}.", Thread.CurrentThread.ManagedThreadId.ToString());
+            Runtime.m_Logger.Info("数据转存线程启动，线程ID：{0}.", Thread.CurrentThread.ManagedThreadId.ToString());
+
+            while (true)
+            {
+                if (DateTime.Now.Minute % 5 == 1)
+                {
+                    ShowLog("检查是否有需要存储的数据？");
+                    Runtime.m_Logger.Info("检查是否有需要存储的数据？");
+
+                    SaveDataFromFileSystem(false);
+
+                    ShowLog("存储数据到能耗及历史数据库成功");
+                    Runtime.m_Logger.Info("存储数据到能耗及历史数据库成");
+
+                    Thread.Sleep(1000 * 60);
+                }
+                else
+                {
+                    ShowLog("当前无数据需要处理，进行下一个周期的数据扫描...");
+                    Runtime.m_Logger.Info("当前无数据需要处理，进行下一个周期的数据扫描...");
+                    Thread.Sleep(60000);
+                }
+
+
+            }
+        }
+
+        private static void ExecuteCalcForSQLServer()
+        {
+            while (true)
+            {
+                if (DateTime.Now.Minute % 15 == 1)
+                {
+                    string procedureName = "FUNC_CalcEnergyFromMeterOrigValue";
+                    try
+                    {
+                        int cnt = SQLServerHelper.ExecuteStoredProcedure(Runtime.SQLEnergyConnectString, procedureName);
+                        ShowLog($"执行能耗计算任务成功，共影响{cnt}条任务!");
+                        Runtime.m_Logger.Info($"执行能耗计算任务成功，共影响{cnt}条任务!");
+                    }
+                    catch (Exception er)
+                    {
+                        ShowLog($"执行计算能耗任务异常:{er.Message}");
+                        Runtime.m_Logger.Error(er, "执行计算任务异常:");
+                    }
+
+                    Thread.Sleep(60000);
+                    
+                }
+            }
         }
     }
 }
